@@ -1,0 +1,53 @@
+{
+  "name": "peertube-plugin-orion-monetization",
+  "description": "Monetization plugin using crypto-miner (for creators / by viewers)",
+  "version": "1.1.0",
+  "author": "Nalem",
+  "bugs": "https://www.orion-hub.fr",
+  "clientScripts": [
+    {
+      "script": "dist/video-edit-client-plugin.js",
+      "scopes": [
+        "video-edit"
+      ]
+    },
+    {
+      "script": "dist/video-watch-client-plugin.js",
+      "scopes": [
+        "video-watch"
+      ]
+    },
+    {
+      "script": "dist/common-client-plugin.js",
+      "scopes": [
+        "common"
+      ]
+    }
+  ],
+  "css": [
+    "assets/style.css"
+  ],
+  "devDependencies": {
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.7.2"
+  },
+  "engine": {
+    "peertube": ">=1.3.0"
+  },
+  "homepage": "https://www.orion-hub.fr",
+  "keywords": [
+    "peertube",
+    "plugin"
+  ],
+  "library": "./main.js",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "webpack --mode=production"
+  },
+  "staticDirs": {
+    "images": "public/images"
+  },
+  "translations": {
+    "fr-FR": "./languages/fr.json"
+  }
+}
