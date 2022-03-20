@@ -22,7 +22,10 @@
   "Send payout request": "Envoyer la demande de paiement",
   "Pending": "En attente",
   "Processed": "Traité",
+  "Refused": "Refusé",
   "Payout history": "Historique des paiements",
   "When you request a payout, he appear here and you can follow its state.": "Lorsque vous faite une demande de paiement, celle-ci sera listé ici afin que vous puissiez suivre son état.",
-  "Loading": "Chargement"
+  "Loading": "Chargement",
+  "Request history": "Historique des demandes",
+  "All users request appear here.": "Toute les demandes de payout apparaîtront ici."
 }

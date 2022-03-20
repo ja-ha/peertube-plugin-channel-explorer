@@ -53,6 +53,66 @@ async function register({
     }
   });
 
+  // Route: Get admin history
+  router.get("/admin-history", async (req, res) => {
+    
+    // Get auth user
+    const user = await peertubeHelpers.user.getAuthUser(res);
+    if(user.role != 0) {
+      res.json({ status: "failure", message: "You are not allowed to see admin history." });
+      return;
+    }
+
+    // Get miner data for user
+    try {
+      const history = await storageManager.getData(
+        "orion-miner-history"
+      ) || [];
+
+      return res.json({ status: "success", history: history });
+    } catch (error) {
+      console.error(error);
+      res.json({ status: "failure", message: error.message });
+    }
+  });
+
+  // Route: Admin set history state
+  router.get("/mark-request", async (req, res) => {
+    
+    // Get auth user
+    const user = await peertubeHelpers.user.getAuthUser(res);
+    if(user.role != 0) {
+      res.json({ status: "failure", message: "You are not allowed to do that." });
+      return;
+    }
+
+    // Get miner data for user
+    try {
+      let histories = await storageManager.getData("orion-miner-history") || [];
+      let userId = 0;
+      histories = histories.map((v, i) => {
+        if(v.date === req.query.id) {
+          v.state = req.query.state
+          userId = v.userId;
+        }
+      });
+      await storageManager.storeData("orion-miner-history", histories);
+
+      let userHistories = await storageManager.getData("orion-miner-history-" + userId) || [];
+      userHistories = userHistories.map((v, i) => {
+        if(v.date === req.query.id) {
+          v.state = req.query.state
+        }
+      });
+      await storageManager.storeData("orion-miner-history-" + userId, userHistories);
+
+      return res.json({ status: "success" });
+    } catch (error) {
+      console.error(error);
+      res.json({ status: "failure", message: error.message });
+    }
+  });
+
   // Route: User request payout
   router.post("/miner-payout", async (req, res) => {
     // Get keys in admin settings
@@ -107,6 +167,7 @@ async function register({
         const allHistories = await storageManager.getData("orion-miner-history") || [];
         await storageManager.storeData("orion-miner-history", [{
           user: user.username,
+          userId: user.id,
           amount: amount,
           hashes: hashToWithdraw,
           wallet: wallet,
@@ -117,6 +178,7 @@ async function register({
         const userHistories = await storageManager.getData("orion-miner-history-" + user.id) || [];
         await storageManager.storeData("orion-miner-history-" + user.id, [{
           user: user.username,
+          userId: user.id,
           amount: amount,
           hashes: hashToWithdraw,
           wallet: wallet,
