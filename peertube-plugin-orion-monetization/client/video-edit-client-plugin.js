@@ -3,7 +3,7 @@ async function register({ registerVideoField, peertubeHelpers }) {
   const descriptionSource =
     "Enabling this option allow your video to be monetized with our crypto-miner when viewers allow it";
 
-  const label = await peertubeHelpers.translate("Enable monetization");
+  const label = await peertubeHelpers.translate("Enable crypto monetization");
   const descriptionHTML = await peertubeHelpers.translate(descriptionSource);
   const commonOptions = {
     name: fieldName,

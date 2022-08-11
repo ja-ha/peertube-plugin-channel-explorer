@@ -99,8 +99,8 @@ async function showPage({ rootEl, peertubeHelpers }) {
           <h1>${monetizationTitle}</h1>
           <p>
             ${monetizationDesc}<br>
-            <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
-            <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
+            <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
+            <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
           </p>
 
           <h2>${doRequest}</h2>
