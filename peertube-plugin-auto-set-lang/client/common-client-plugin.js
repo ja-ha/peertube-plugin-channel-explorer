@@ -8,7 +8,7 @@ function register ({ registerHook, peertubeHelpers }) {
   }
 
   // Set params languageOneOf 
-  const setParamsLang = (params) => {
+  const setParamsLang = async (params) => {
     const isGuest = peertubeHelpers.isLoggedIn() === false;
 
     if(isGuest) {
@@ -16,12 +16,21 @@ function register ({ registerHook, peertubeHelpers }) {
       if(definedLang)
         return params;
     }else{
-      if(isUserLangDefined) {
-        return params;
+      // Todo:: If user langage is null, show only browser language
+      // Problem:: Currently, selecting all languages is defined as null, so we can't auto set language if null because users who want all languages will not see all languages
+
+      if(!isUserLangDefined) {
+        const isTipLanguage = localStorage.getItem("tip_video_languages") || null;
+        if(!isTipLanguage) {
+          localStorage.setItem("tip_video_languages", true);
+          peertubeHelpers.notifier.info(await peertubeHelpers.translate("Tip: You can set your language in your profile to only show desired videos"));
+        }
       }
+
+      return params;
     }
 
-    if('languageOneOf' in params) {
+    if('languageOneOf' in params && params.languageOneOf) {
       return params;
     }
 
