@@ -16,6 +16,13 @@ async function register({
   router.get("/stats", async (req, res) => {
     
     try {
+      // Get current user
+      const user = await peertubeHelpers.user.getAuthUser(res);
+      if (!user || (user.role != 0 && user.role != 1)) {
+        res.json({ status: "failure", message: "You are not allowed to do that." });
+        return;
+      }
+      
       const { from, to, groupBy } = req.query;
       const fromDate = moment(from);
       const toDate = moment(to);
