@@ -17,6 +17,12 @@ function register({ registerHook, peertubeHelpers }) {
         return;
 
       const timer = setInterval(() => {
+        // Check if current location contain /upload, else clear timer
+        if(window.location.href.indexOf('/upload') == -1) {
+          clearInterval(timer);
+          return;
+        }
+
         // Wait for hidden not exist
         if(!document.querySelector('form').hasAttribute('hidden')) {
           clearInterval(timer);
