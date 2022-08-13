@@ -13,7 +13,7 @@ function register({ registerHook, peertubeHelpers }) {
   registerHook({
     target: 'action:video-edit.init',
     handler: ({ type }) => {
-      if(type == "update")
+      if(type != "upload" && type != "go-live")
         return;
 
       const timer = setInterval(() => {
