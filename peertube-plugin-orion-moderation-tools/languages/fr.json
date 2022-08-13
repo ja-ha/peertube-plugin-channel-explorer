@@ -1,3 +1,23 @@
 {
-  "Hello world": "Hello le monde"
+  "Ban": "Bannir",
+  "Ban a channel": "Bannir la chaine",
+  "duration": "durée",
+  "Cancel": "Annuler",
+  "Confirm ban": "Confirmer le bannissement",
+  "day": "jour",
+  "days": "jours",
+  "month": "mois",
+  "months": "mois",
+  "year": "année",
+  "years": "années",
+  "Channel banned": "Chaine bannie",
+  "Unban": "Débannir",
+  "Unban a channel": "Débannir la chaine",
+  "Channel unbanned": "Chaine débannie",
+  "Are you sure you want to unban this channel?": "Êtes-vous sûr de vouloir débannir cette chaine ?",
+  "This channel is temporary banned!": "Cette chaine est temporairement bannie !",
+  "Sorry, you can't access to this channel until": "Désolé, vous ne pouvez pas accéder à cette chaine jusqu'au",
+  "Back to homepage": "Retour à la page d'accueil",
+  "Close": "Fermer",
+  "Forever": "Pour toujours"
 }

@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-auto-set-lang",
   "description": "Plugin to automatically define video languages by browser language if undefined (in video settings on upload and in videos list in frontend)",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Nalem",
   "bugs": "https://www.orion-hub.fr",
   "clientScripts": [
