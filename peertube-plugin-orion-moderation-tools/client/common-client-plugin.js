@@ -22,10 +22,10 @@ function register({ registerHook, peertubeHelpers }) {
       headers: peertubeHelpers.getAuthHeader(),
     });
     const data = await respone.json();
-    console.log(data);
 
     if(data.status !== "success") {
-      peertubeHelpers.notifier.error("Error checking if channel is banned : " + data.message);
+      console.error(data.message);
+      // peertubeHelpers.notifier.error("Error checking if channel is banned : " + data.message);
       return;
     }
 

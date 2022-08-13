@@ -1,7 +1,7 @@
 {
-  "name": "peertube-plugin-orion-moderation-tools",
-  "description": "Plugin to temporary or permanent ban of channels",
-  "version": "1.0.1",
+  "name": "peertube-plugin-orion-admin-stats",
+  "description": "Plugin to display stats about instance in the admin dashboard",
+  "version": "1.0.0",
   "author": "Nalem",
   "bugs": "https://www.orion-hub.fr",
   "clientScripts": [
@@ -22,13 +22,14 @@
   "keywords": [
     "peertube",
     "plugin",
-    "moderation"
+    "admin",
+    "stats"
   ],
   "library": "./main.js",
   "scripts": {
     "prepare": "npm run build",
     "build": "node ./scripts/build.js",
-    "pl:install": "cd ../../PeerTube && npm run plugin:uninstall -- --npm-name peertube-plugin-orion-moderation-tools && npm run plugin:install -- --plugin-path /Users/thommy/Websites/peertube-dev/plugins/peertube-plugin-orion-moderation-tools"
+    "pl:install": "cd ../../PeerTube && npm run plugin:uninstall -- --npm-name peertube-plugin-orion-admin-stats && npm run plugin:install -- --plugin-path /Users/thommy/Websites/peertube-dev/plugins/peertube-plugin-orion-admin-stats"
   },
   "staticDirs": {
     "images": "public/images"
