@@ -104,7 +104,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
     document.body.appendChild(googleChart);
 
     googleChart.onload = () => {
-        refreshChart(data);
+        refreshChart(data, null, null, peertubeHelpers);
         document.getElementById("refresh-stats").onsubmit = (e) => {
             e.preventDefault();
             refreshChart(null, {
@@ -125,14 +125,14 @@ async function refreshChart(data = null, params = null, baseUrl = null, peertube
         // Fetch admin stats
         const response = await fetch(baseUrl + "/stats?" + (params ? "&" + new URLSearchParams(params).toString() : ""), {
             method: "GET",
-            headers: peertubeHelpers.getAuthHeader(),
+            headers: await peertubeHelpers.getAuthHeader(),
         });
         var data = await response.json();
     }
 
-    let drawChart = function () {
+    let drawChart = async function () {
         var array = [
-            ['Date', 'Videos seen', 'Total Views', 'Average views per video'],
+            ['Date', await peertubeHelpers.translate('Videos seen'), await peertubeHelpers.translate('Total Views'), await peertubeHelpers.translate('Average views per video')],
         ];
         // data.data.videoViewsStats.map((item) => {
         for (let i = 0; i < data.data.videoViewsStats.length; i++) {
@@ -143,7 +143,7 @@ async function refreshChart(data = null, params = null, baseUrl = null, peertube
 
         var dataChart = google.visualization.arrayToDataTable(array);
         var options = {
-            title: 'Videos views',
+            title: await peertubeHelpers.translate('Videos views'),
             hAxis: { title: 'Date', titleTextStyle: { color: '#333' } },
             vAxis: { minValue: 0 }
         };
