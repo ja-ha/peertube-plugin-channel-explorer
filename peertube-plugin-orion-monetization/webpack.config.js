@@ -3,7 +3,8 @@ const path = require("path")
 const clientFiles = [
   'video-watch-client-plugin.js',
   'video-edit-client-plugin.js',
-  'common-client-plugin.js'
+  'common-client-plugin.js',
+  'embed-client-plugin.js',
 ]
 
 let config = clientFiles.map(f => ({

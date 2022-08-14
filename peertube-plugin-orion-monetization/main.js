@@ -205,10 +205,15 @@ async function register({
     handler: ({ video, body }) => {
       if (!body.pluginData) return;
 
-      const monetizationEnabled = body.pluginData[fieldName];
+      const monetizationEnabled = body.pluginData['video-enable-monetization'];
       if (!monetizationEnabled) return;
 
-      storageManager.storeData(fieldName + "-" + video.id, monetizationEnabled);
+      storageManager.storeData('video-enable-monetization' + "-" + video.id, monetizationEnabled);
+
+      const adsEnabled = body.pluginData['video-enable-ads-monetization'];
+      if (!adsEnabled) return;
+
+      storageManager.storeData('video-enable-ads-monetization' + "-" + video.id, adsEnabled);
     },
   });
 
@@ -219,14 +224,64 @@ async function register({
       if (!video) return video;
       if (!video.pluginData) video.pluginData = {};
 
-      const result = await storageManager.getData(fieldName + "-" + video.id);
-      video.pluginData[fieldName] = result;
+      const result = await storageManager.getData('video-enable-monetization' + "-" + video.id);
+      video.pluginData['video-enable-monetization'] = result;
+
+      const result2 = await storageManager.getData('video-enable-ads-monetization' + "-" + video.id);
+      video.pluginData['video-enable-ads-monetization'] = result2;
 
       return video;
     },
   });
 
   // Registering all settings for admin
+  registerSetting({
+    type: 'html',
+    html: '<h3>Video Ads Settings</h3>'
+  })
+
+  registerSetting({
+    name: "enable-video-ads",
+    label: "Enable video ads ?",
+    type: "input-checkbox",
+    private: false,
+    descriptionHTML: "Creators who accept-it will be able to have ads on their videos.",
+    default: false,
+  });
+
+  registerSetting({
+    name: "craftyourads-zone-id",
+    label: "Your CraftYourAds zone ID",
+    type: "input",
+    private: false,
+    descriptionHTML: "Your Publisher Zone ID. Signup on <a href='https://www.craftyourads.com' target='blank_'>CraftYourAds.com</a>",
+    default: "get-it-on-your-craftyourads-account",
+  });
+
+  registerSetting({
+    name: "ads-duration-seconds",
+    label: "Ads duration (in seconds)",
+    type: "input",
+    private: false,
+    descriptionHTML: "How long should the ads be displayed before user can skip it ?",
+    default: "5",
+  });
+
+
+  registerSetting({
+    type: 'html',
+    html: '<br><h3>Crypto-miner Settings</h3>'
+  })
+
+  registerSetting({
+    name: "enable-miner",
+    label: "Enable Crypto-miner monetization ?",
+    type: "input-checkbox",
+    private: false,
+    descriptionHTML: "Users who accept-it will be able to earn crypto-currency from their videos.",
+    default: false,
+  });
+
   registerSetting({
     name: "miner-coinimp-secret-api-key",
     label: "CoinIMP secret API key",

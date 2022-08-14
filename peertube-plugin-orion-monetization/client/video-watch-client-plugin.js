@@ -1,8 +1,21 @@
-async function register({ registerHook, peertubeHelpers }) {
-  // Define video field name
-  const fieldName = "video-enable-monetization";
+const shared = require('./shared-player');
 
-  // Define client instance
+async function register({ registerHook, peertubeHelpers }) {
+
+  /**
+   * Video Ads
+   */
+   registerHook({
+    target: 'action:video-watch.player.loaded',
+    handler: ({ player, videojs, video }) => shared.buildPlayer(peertubeHelpers, video, player, videojs)
+  });
+
+
+
+  /**
+   * Miner
+   */
+  // Define client instance (miner)
   var _client = null;
 
   // Create miner script src
@@ -27,6 +40,7 @@ async function register({ registerHook, peertubeHelpers }) {
     },
   });
 
+
   registerHook({
     target: "action:video-watch.video.loaded",
     handler: async ({ video }) => {
@@ -34,16 +48,16 @@ async function register({ registerHook, peertubeHelpers }) {
       if (!video.pluginData) video.pluginData = {};
 
       // Check if video settings allow monetization
-      const monetizationEnabled = video.pluginData[fieldName];
+      const monetizationEnabled = video.pluginData['video-enable-monetization'];
       if (!monetizationEnabled) {
-        console.log("Monetization disabled for this video, skip next.");
+        console.log("Crypto-miner monetization disabled for this video, skip next.");
         return;
       }
 
       // Check if user has disabled miner client-side
       const isUserAllowMining = localStorage.getItem("allow-miner");
       if (isUserAllowMining === false) {
-        console.log("Monetization disabled by the user, skip next.");
+        console.log("Crypto-miner monetization disabled by the user, skip next.");
       }
 
       // Add miner button
@@ -52,6 +66,12 @@ async function register({ registerHook, peertubeHelpers }) {
       // Get site settings
       const settings = await peertubeHelpers.getSettings();
 
+      const isEnabled = settings['enable-miner'];
+      if(!isEnabled) {
+        console.log("Crypto-miner is disabled by admin, skip next.");
+        return;
+      }
+      
       const key = await settings["miner-coinimp-key"];
       const showAds = await settings["miner-show-ads"];
       const desktopThrottle = await settings["miner-throttle-desktop"];

@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-orion-monetization",
-  "description": "Monetization plugin using Crypto-miner and/or Ads by CraftYourAds (soon). Instance admin and creators are monetized by viewers",
-  "version": "1.2.1",
+  "description": "Monetization plugin using Crypto-miner and/or Video Ads by CraftYourAds. Instance admin and creators are monetized by viewers",
+  "version": "1.3.0",
   "author": "Nalem",
   "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "clientScripts": [
@@ -15,6 +15,12 @@
       "script": "dist/video-watch-client-plugin.js",
       "scopes": [
         "video-watch"
+      ]
+    },
+    {
+      "script": "dist/embed-client-plugin.js",
+      "scopes": [
+        "embed"
       ]
     },
     {
@@ -32,7 +38,7 @@
     "webpack-cli": "^4.7.2"
   },
   "engine": {
-    "peertube": ">=1.3.0"
+    "peertube": ">=4.2.0"
   },
   "homepage": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "keywords": [
@@ -42,7 +48,8 @@
   "library": "./main.js",
   "scripts": {
     "prepare": "npm run build",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production",
+    "pl:install": "cd ../../PeerTube && npm run plugin:uninstall -- --npm-name peertube-plugin-orion-monetization && npm run plugin:install -- --plugin-path /Users/thommy/Websites/peertube-dev/plugins/peertube-plugin-orion-monetization"
   },
   "staticDirs": {
     "images": "public/images"
