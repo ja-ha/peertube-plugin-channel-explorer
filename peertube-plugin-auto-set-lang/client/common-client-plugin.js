@@ -41,6 +41,10 @@ function register ({ registerHook, peertubeHelpers }) {
   };
   
   registerHook({
+    target: "filter:api.overviews.videos.list.params",
+    handler: setParamsLang
+  });
+  registerHook({
     target: "filter:api.trending-videos.videos.list.params",
     handler: setParamsLang
   });
