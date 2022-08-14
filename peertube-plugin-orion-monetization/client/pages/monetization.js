@@ -96,7 +96,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
     
     rootEl.innerHTML += `
     <div class="container  mt-2 mb-5">
-      <h3>${await peertubeHelpers.translate("Ads Request")}</h3>
+      <h3>${await peertubeHelpers.translate("Ads Requests")}</h3>
       <p>
         <b>${await peertubeHelpers.translate("Earns for 1000 views")}: ${earnPer1000}${devise}</b> <i>(${minPayout} ${minPay} ${devise})</i><br>
         <b>${currentPending}: ${earns.toFixed(3)} ${devise}</b> <i>(${currentlyHashesPending} ${views} ${await peertubeHelpers.translate("views")})</i><br>

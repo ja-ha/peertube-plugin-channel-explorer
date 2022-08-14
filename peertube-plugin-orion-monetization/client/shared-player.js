@@ -63,7 +63,7 @@ async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_u
     // Add skip timer
     const skipTimer = document.createElement('button');
     skipTimer.id = 'skip-timer';
-    skipTimer.innerText = 'Skip ad in ' + adsDuration + ' seconds';
+    skipTimer.innerHTML = await peertubeHelpers.translate('Skip Ad in') + "<br>" + adsDuration + ' ' + await peertubeHelpers.translate('seconds');
     skipTimer.classList.add('btn', 'btn-primary', 'btn-sm');
     skipButtonContainer.appendChild(skipTimer);
     skipTimer.addEventListener('click', () => {
@@ -73,7 +73,7 @@ async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_u
     // Add creative button 
     const creativeButton = document.createElement('button');
     creativeButton.id = 'creative-button';
-    creativeButton.innerText = await peertubeHelpers.translate('View More');
+    creativeButton.innerText = await peertubeHelpers.translate('View more') + '>>';
     creativeButton.classList.add('btn', 'btn-primary', 'btn-sm');
     skipButtonContainer.appendChild(creativeButton);
     creativeButton.addEventListener('click', () => {

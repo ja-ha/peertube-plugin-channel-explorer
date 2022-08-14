@@ -29,5 +29,17 @@
   "When you request a payout, he appear here and you can follow its state.": "Lorsque vous faite une demande de paiement, celle-ci sera listé ici afin que vous puissiez suivre son état.",
   "Loading": "Chargement",
   "Request history": "Historique des demandes",
-  "All users request appear here.": "Toute les demandes de payout apparaîtront ici."
+  "All users request appear here.": "Toute les demandes de payout apparaîtront ici.",
+  "Mark processed": "Marquer comme traité",
+  "Mark refused": "Marquer comme refusé",
+  "Skip Ad": "Passer la pub",
+  "Skip Ad in": "Passer la pub dans",
+  "Amount": "Montant",
+  "Views": "Vues",
+  "views": "vues",
+  "State": "Etat",
+  "Ads Requests": "Demandes de pub",
+  "Miner Requests": "Demandes du mineur",
+  "View more": "Voir plus",
+  "seconds": "secondes"
 }
