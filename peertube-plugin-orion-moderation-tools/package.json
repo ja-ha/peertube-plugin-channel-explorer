@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-orion-moderation-tools",
   "description": "Plugin to temporary or permanent ban of channels",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Nalem",
   "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "clientScripts": [
