@@ -17,7 +17,6 @@ async function showPage({ rootEl, peertubeHelpers }) {
         headers: peertubeHelpers.getAuthHeader(),
     });
     const data = await response.json();
-    console.log(data);
 
     // If have error
     if (!data || !data.status || (data.status && data.status !== "success")) {

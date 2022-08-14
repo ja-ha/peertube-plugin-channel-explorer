@@ -1,0 +1,46 @@
+{
+  "name": "peertube-plugin-orion-channel-explorer",
+  "description": "Allow users to explore channels in the Discover page",
+  "version": "1.0.0",
+  "author": "Nalem",
+  "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
+  "clientScripts": [
+    {
+      "script": "dist/common-client-plugin.js",
+      "scopes": [
+        "common"
+      ]
+    }
+  ],
+  "css": [
+    "assets/style.css"
+  ],
+  "engine": {
+    "peertube": ">=4.2.0"
+  },
+  "homepage": "https://git.orion-serv.fr/Orion/Peertube-plugins",
+  "keywords": [
+    "peertube",
+    "plugin",
+    "admin",
+    "stats"
+  ],
+  "library": "./main.js",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "node ./scripts/build.js",
+    "pl:install": "cd ../../PeerTube && npm run plugin:uninstall -- --npm-name peertube-plugin-orion-channel-explorer && npm run plugin:install -- --plugin-path /Users/thommy/Websites/peertube-dev/plugins/peertube-plugin-orion-channel-explorer"
+  },
+  "staticDirs": {
+    "images": "public/images"
+  },
+  "translations": {
+    "fr-FR": "./languages/fr.json"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.36"
+  },
+  "dependencies": {
+    "moment": "^2.29.4"
+  }
+}
