@@ -68,13 +68,15 @@ async function loadNextChannels(peertubeHelpers) {
         for(let i = 0; i < channels.length; i++) {
             const channel = channels[i];
             const node = document.createElement("div");
+            const uri = encodeURIComponent(channel.name);
+            
             node.className = "col-sm-12 col-md-6 mt-2";
             node.innerHTML = `
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">${channel.name}</h5>
                         <p class="card-text">${channel.description || await peertubeHelpers.translate("No description provided")}</p>
-                        <a href="/c/${channel.name}/videos" class="btn btn-primary">${await peertubeHelpers.translate("Visit channel")}</a>
+                        <a href="/c/${uri}/videos" class="btn btn-primary">${await peertubeHelpers.translate("Visit channel")}</a>
                     </div>
                 </div>
             `;
