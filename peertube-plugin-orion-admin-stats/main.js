@@ -60,9 +60,10 @@ async function register({
       
       // Videos count
       request = await peertubeHelpers.database.query(
-        'SELECT COUNT(*) AS "count" FROM "video"',
+        'SELECT COUNT(*) AS "count" FROM "video" WHERE "remote" = $remote',
         {
-          type: "SELECT"
+          type: "SELECT",
+          bind: { remote: false }
         }
       );
       
@@ -71,10 +72,10 @@ async function register({
 
       // Videos count this month
       request = await peertubeHelpers.database.query(
-        'SELECT COUNT(*) AS "count" FROM "video" WHERE "createdAt" > $dat',
+        'SELECT COUNT(*) AS "count" FROM "video" WHERE "createdAt" > $dat AND "remote" = $remote',
         {
           type: "SELECT",
-          bind: { dat: startOfMonth.format('YYYY-MM-DD HH:mm:ss') }
+          bind: { dat: startOfMonth.format('YYYY-MM-DD HH:mm:ss'), remote: false }
         }
       );
 
