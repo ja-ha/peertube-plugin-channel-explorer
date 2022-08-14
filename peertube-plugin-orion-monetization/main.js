@@ -9,7 +9,6 @@ async function register({
   peertubeHelpers
 }) {
   const router = getRouter();
-  const fieldName = "video-enable-monetization";
 
   // Route: User get stats info
   router.get("/miner-stats", async (req, res) => {
@@ -69,7 +68,11 @@ async function register({
         "orion-miner-history"
       ) || [];
 
-      return res.json({ status: "success", history: history });
+      const historyAds = await storageManager.getData(
+        "orion-ads-history"
+      ) || [];
+
+      return res.json({ status: "success", history: history, historyAds });
     } catch (error) {
       console.error(error);
       res.json({ status: "failure", message: error.message });
@@ -81,27 +84,34 @@ async function register({
     
     // Get auth user
     const user = await peertubeHelpers.user.getAuthUser(res);
-    if(user.role != 0) {
+    if(!user || user.role != 0) {
       res.json({ status: "failure", message: "You are not allowed to do that." });
       return;
     }
 
     // Get miner data for user
     try {
+      const { id, state } = req.query;
       let histories = await storageManager.getData("orion-miner-history") || [];
       let userId = 0;
       histories = histories.map((v, i) => {
-        if(v.date === req.query.id) {
-          v.state = req.query.state
+        if(v.date == id) {
+          v.state = state
           userId = v.userId;
         }
       });
+
+      if(!userId) {
+        res.json({ status: "failure", message: "Ad request not found." });
+        return;
+      }
+
       await storageManager.storeData("orion-miner-history", histories);
 
       let userHistories = await storageManager.getData("orion-miner-history-" + userId) || [];
       userHistories = userHistories.map((v, i) => {
-        if(v.date === req.query.id) {
-          v.state = req.query.state
+        if(v.date == id) {
+          v.state = state
         }
       });
       await storageManager.storeData("orion-miner-history-" + userId, userHistories);
@@ -164,6 +174,7 @@ async function register({
 
       const data = await response.json();
       if (data.status && data.status === "success") {
+        let dateNow = Date.now();
         const allHistories = await storageManager.getData("orion-miner-history") || [];
         await storageManager.storeData("orion-miner-history", [{
           user: user.username,
@@ -172,7 +183,7 @@ async function register({
           hashes: hashToWithdraw,
           wallet: wallet,
           state: 0,
-          date: Date.now(),
+          date: dateNow,
         }, ...allHistories]);
 
         const userHistories = await storageManager.getData("orion-miner-history-" + user.id) || [];
@@ -183,7 +194,7 @@ async function register({
           hashes: hashToWithdraw,
           wallet: wallet,
           state: 0,
-          date: Date.now(),
+          date: dateNow,
         }, ...userHistories]);
 
         return res.json({ status: "success", message: "Request added." });
@@ -193,6 +204,161 @@ async function register({
           message: data.message || "Unknown error",
         });
       }
+    } catch (error) {
+      console.error(error);
+      res.json({ status: "failure", message: error.message });
+    }
+  });
+
+
+  // Route: Ping ads view
+  router.get("/ping-ads", async (req, res) => {
+    try {
+      // Save ads count in storage for the target user
+      const { accountId } = req.query;
+  
+      // Get latest views count and set new one
+      const views = await storageManager.getData("orion-ads-views-" + accountId) || 0;
+      await storageManager.storeData("orion-ads-views-" + accountId, parseInt(views) + 1);
+  
+      return res.json({ status: "success" });
+    } catch (error) {
+      console.error(error);
+      res.json({ status: "failure", message: error.message });
+    }
+  });
+
+  // Route: Get ads views
+  router.get("/ads-views", async (req, res) => {
+    try {
+      // Get auth user
+      const user = await peertubeHelpers.user.getAuthUser(res);
+      if(!user) {
+        res.json({ status: "failure", message: "You are not allowed to do that." });
+        return;
+      }
+      
+      // Get ads views for the user
+      const views = await storageManager.getData("orion-ads-views-" + user.id) || 0;
+
+      // Calculate earns
+      const earnPer1kViews = await settingsManager.getSetting("ads-earns-per-1000") || 0;
+
+      // Get history for the user
+      const userHistories = await storageManager.getData("orion-ads-history-" + user.id) || [];
+
+      return res.json({ status: "success", views: views, earns: (views / 1000) * earnPer1kViews, history: userHistories });
+
+    } catch (error) {
+      console.error(error);
+      res.json({ status: "failure", message: error.message });
+    }
+  });
+
+  // Route: Request ads payout
+  router.post("/ads-payout", async (req, res) => {
+    try {
+      // Get auth user
+      const user = await peertubeHelpers.user.getAuthUser(res);
+      if(!user) {
+        res.json({ status: "failure", message: "You are not allowed to do that." });
+        return;
+      }
+      
+      // Get ads views for the user
+      const views = await storageManager.getData("orion-ads-views-" + user.id) || 0;
+
+      // Min payout & devise
+      const minPayout = await settingsManager.getSetting("ads-min-payout");
+      const devise = await settingsManager.getSetting("ads-devise");
+
+      // Calculate earns
+      const earnPer1kViews = await settingsManager.getSetting("ads-earns-per-1000");
+      const amount = (views / 1000) * earnPer1kViews;
+      if(amount < 0 || isNaN(amount))
+        throw new Error("Amount specified is invalid.");
+      if(amount < minPayout)
+        throw new Error("You need at least " + minPayout + devise + " to request a payout");
+
+
+      // Reset user ads views
+      await storageManager.storeData("orion-ads-views-" + user.id, 0);
+
+      // Add payout history for ads
+      let dateNow = Date.now();
+      const allHistories = await storageManager.getData("orion-ads-history") || [];
+      await storageManager.storeData("orion-ads-history", [{
+        user: user.username,
+        userId: user.id,
+        amount: amount,
+        views: views,
+        paypal: req.body.paypal,
+        date: dateNow,
+        state: 0,
+      }, ...allHistories]);
+
+      const userHistories = await storageManager.getData("orion-ads-history-" + user.id) || [];
+      await storageManager.storeData("orion-ads-history-" + user.id, [{
+        user: user.username,
+        userId: user.id,
+        amount: amount,
+        views: views,
+        paypal: req.body.paypal,
+        date: dateNow,
+        state: 0,
+      }, ...userHistories]);
+
+      return res.json({ status: "success", message: "Request added." });
+
+    } catch (error) {
+      console.error(error);
+      res.json({ status: "failure", message: error.message });
+    }
+  });
+
+
+  // Route: Admin mark ad request
+  router.get("/mark-ad-request", async (req, res) => {
+    try {
+      // Get auth user
+      const user = await peertubeHelpers.user.getAuthUser(res);
+      if(!user || user.role != 0) {
+        res.json({ status: "failure", message: "You are not allowed to do that." });
+        return;
+      }
+      
+      const { id, state } = req.query;
+      let adsHistory = await storageManager.getData("orion-ads-history") || [];
+      let userId = 0;
+
+      for(let i = 0; i < adsHistory.length; i++) {
+        if(adsHistory[i].date == id) {
+          userId = adsHistory[i].userId;
+          adsHistory[i].state = state;
+          break;
+        }
+      }
+
+      if(!userId) {
+        res.json({ status: "failure", message: "Ad request not found." });
+        return;
+      }
+
+      await storageManager.storeData("orion-ads-history", adsHistory);
+
+      // Get user history
+      adsHistory = await storageManager.getData("orion-ads-history-" + userId) || [];
+      for(let i = 0; i < adsHistory.length; i++) {
+        if(adsHistory[i].date == id) {
+          adsHistory[i].state = state;
+          break;
+        }
+      }
+
+      await storageManager.storeData("orion-ads-history-" + userId, adsHistory);
+
+      return res.json({ status: "success", message: "Request marked." });
+
     } catch (error) {
       console.error(error);
       res.json({ status: "failure", message: error.message });
@@ -265,6 +431,33 @@ async function register({
     private: false,
     descriptionHTML: "How long should the ads be displayed before user can skip it ?",
     default: "5",
+  });
+
+  registerSetting({
+    name: "ads-earns-per-1000",
+    label: "Users earns per 1000 views",
+    type: "input",
+    private: false,
+    descriptionHTML: "How much should a user earn per 1000 views ?",
+    default: "0.01",
+  });
+
+  registerSetting({
+    name: "ads-min-payout",
+    label: "Minimum payout",
+    type: "input",
+    private: false,
+    descriptionHTML: "Minimum amount of earn to request a payout.",
+    default: "20",
+  });
+
+  registerSetting({
+    name: "ads-earns-devise",
+    label: "Devise to use",
+    type: "input",
+    private: false,
+    descriptionHTML: "What is the devise ?",
+    default: "€",
   });
 
 

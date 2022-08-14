@@ -37,20 +37,19 @@ export async function buildPlayer(peertubeHelpers, video, player, videojs) {
         const redirectUrl = data.redirect_url;
 
         player.src(videoUrl);
+        player.controls(false);
+        player.currentTime(0);
         player.play();
 
-        addAdsSkipTimer(peertubeHelpers, player, base_src, redirectUrl, adsDuration);
+        addAdsSkipTimer(peertubeHelpers, player, base_src, redirectUrl, adsDuration, video);
     }
     catch (error) {
         console.error(error);
     }
 }
 
-async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_url, adsDuration) {
+async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_url, adsDuration, video) {
     const skipButtonContainer = document.getElementById('plugin-placeholder-player-next');
-
-    // Disabled player controls
-    player.controls(false);
 
     // Add block button after #plugin-placeholder-player-next
     const skipButton = document.createElement('button');
@@ -64,7 +63,7 @@ async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_u
     // Add skip timer
     const skipTimer = document.createElement('button');
     skipTimer.id = 'skip-timer';
-    skipTimer.innerText = '00:00';
+    skipTimer.innerText = 'Skip ad in ' + adsDuration + ' seconds';
     skipTimer.classList.add('btn', 'btn-primary', 'btn-sm');
     skipButtonContainer.appendChild(skipTimer);
     skipTimer.addEventListener('click', () => {
@@ -76,6 +75,7 @@ async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_u
     creativeButton.id = 'creative-button';
     creativeButton.innerText = await peertubeHelpers.translate('View More');
     creativeButton.classList.add('btn', 'btn-primary', 'btn-sm');
+    skipButtonContainer.appendChild(creativeButton);
     creativeButton.addEventListener('click', () => {
         window.open(creative_url, '_blank');
     });
@@ -94,13 +94,21 @@ async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_u
             skipButton.style.display = 'inline-block';
 
             // Add click event to skip button
-            skipButton.addEventListener('click', () => {
+            skipButton.addEventListener('click', async () => {
                 player.controls(true);
                 player.src(fallback_src);
                 player.play();
 
                 // Remove skip button
                 skipButton.remove();
+                creativeButton.remove();
+
+                // Ping ads view
+                const account = video.account.userId;
+                const baseUrl = peertubeHelpers.getBaseRouterRoute();
+                await fetch(`${baseUrl}/ping-ads?accountId=${account}&video=${video.id}`, {
+                    method: 'GET'
+                });
             });
 
             return;
@@ -108,7 +116,7 @@ async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_u
 
         const minutes = Math.floor(remainingTime / 60);
         const seconds = Math.floor(remainingTime % 60);
-        const formattedTime = await peertubeHelpers.translate("Skip in") + " " + `${minutes}:${seconds}`;
-        skipTimer.innerText = formattedTime;
+        const formattedTime = await peertubeHelpers.translate("Skip Ad in") + "<br>" + `${minutes}:${seconds}`;
+        skipTimer.innerHTML = formattedTime;
     } , 1000);
 }

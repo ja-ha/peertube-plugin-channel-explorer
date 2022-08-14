@@ -42,40 +42,83 @@ async function showPage({ rootEl, peertubeHelpers }) {
   // Construct history
   let historyHtml = "";
 
-  if (data.history && data.history.length > 0) {
-    for (let i = 0; i < data.history.length; i++) {
-      let history = data.history[i];
-      var curdate = new Date(null);
-      curdate.setTime(history.date);
-      let dateStr = curdate.toLocaleString();
+  /**
+   * Miner
+   */
+  {  
+    if (data.history && data.history.length > 0) {
+      for (let i = 0; i < data.history.length; i++) {
+        let history = data.history[i];
+        var curdate = new Date(null);
+        curdate.setTime(history.date);
+        let dateStr = curdate.toLocaleString();
+  
+        historyHtml += `
+          <tr data-id="${history.date}">
+            <td>${dateStr}</td>
+            <td>${history.user}</td>
+            <td>${history.amount} MINTME</td>
+            <td>${history.hashes || 0} Hashes</td>
+            <td>${walletTh}: ${history.wallet}</td>
+            <td>${
+              history.state == 0
+                ? pendingTd
+                : history.state == -1
+                ? refusedTd
+                : processedTd
+            }</td>
+            <td>
+                <button class="markProcessed btn btn-primary" data-id="${history.date}">${await peertubeHelpers.translate("Mark processed")}</button>
+                <br>
+                <button class="markRefused btn btn-danger" data-id="${history.date}">${await peertubeHelpers.translate("Mark refused")}</button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+  }
 
-      historyHtml += `
-              <tr data-id="${history.date}">
-                <td>${dateStr}</td>
-                <td>${history.user}</td>
-                <td>${history.amount} MINTME</td>
-                <td>${history.hashes || 0}</td>
-                <td>${history.wallet}</td>
-                <td>${
-                  history.state === 0
-                    ? pendingTd
-                    : history.state === -1
-                    ? refusedTd
-                    : processedTd
-                }</td>
-                <td>
-                    <button class="markProcessed btn btn-primary" data-id="${history.date}">Mark processed</button>
-                    <br>
-                    <button class="markRefused btn btn-danger" data-id="${history.date}">Mark refused</button>
-                </td>
-              </tr>
-            `;
+  /**
+   * Ads
+   */
+  {
+    const settings = await peertubeHelpers.getSettings();
+    const devise = await settings['ads-earns-devise'];
+    if (data.historyAds && data.historyAds.length > 0) {
+      for (let i = 0; i < data.historyAds.length; i++) {
+        let history = data.historyAds[i];
+        var curdate = new Date(null);
+        curdate.setTime(history.date);
+        let dateStr = curdate.toLocaleString();
+  
+        historyHtml += `
+          <tr data-id="${history.date}">
+            <td>${dateStr}</td>
+            <td>${history.user}</td>
+            <td>${history.amount}${devise}</td>
+            <td>${history.views || 0} ${await peertubeHelpers.translate('views')}</td>
+            <td>Paypal: ${history.paypal}</td>
+            <td>${
+              history.state == 0
+                ? pendingTd
+                : history.state == -1
+                ? refusedTd
+                : processedTd
+            }</td>
+            <td>
+                <button class="markProcessedAd btn btn-primary" data-id="${history.date}">${await peertubeHelpers.translate("Mark processed")}</button>
+                <br>
+                <button class="markRefusedAd btn btn-danger" data-id="${history.date}">${await peertubeHelpers.translate('Mark refused')}</button>
+            </td>
+          </tr>
+        `;
+      }
     }
   }
 
   rootEl.innerHTML = `
-        <div class="container">
-        <h1>${historyTitle}</h1>
+        <div class="container mt-5">
+        <h3>${historyTitle}</h3>
         <p>${historyDesc}</p>
         <table class="table table-striped">
             <thead>
@@ -83,8 +126,8 @@ async function showPage({ rootEl, peertubeHelpers }) {
                 <th>${dateTh}</th>
                 <th>@</th>
                 <th>${amountTh}</th>
-                <th>Hashes</th>
-                <th>${walletTh}</th>
+                <th></th>
+                <th></th>
                 <th>${stateTh}</th>
                 <th></th>
             </tr>
@@ -122,6 +165,30 @@ async function showPage({ rootEl, peertubeHelpers }) {
             }
         }
 
+        buttons = document.getElementsByClassName("markProcessedAd");
+        for(let i = 0; i < buttons.length; i++) {
+            let el = buttons[i];
+            el.onclick = async function() {
+                let id = this.getAttribute("data-id");
+                console.log("Mark " + id + " to processed");
+
+                // Fetch admin history
+                const response = await fetch(baseUrl + "/mark-ad-request?state=1&id=" + id, {
+                    method: "GET",
+                    headers: peertubeHelpers.getAuthHeader(),
+                });
+                const data = await response.json();
+
+                // If have error
+                if (!data || !data.status || (data.status && data.status !== "success")) {
+                    peertubeHelpers.notifier.error(data.message || "Unknown error");
+                    return;
+                }
+
+                window.location.reload();
+            }
+        }
+
         buttons = document.getElementsByClassName("markRefused");
         for(let i = 0; i < buttons.length; i++) {
             let el = buttons[i];
@@ -131,6 +198,30 @@ async function showPage({ rootEl, peertubeHelpers }) {
 
                 // Fetch admin history
                 const response = await fetch(baseUrl + "/mark-request?state=-1&id=" + id, {
+                    method: "GET",
+                    headers: peertubeHelpers.getAuthHeader(),
+                });
+                const data = await response.json();
+
+                // If have error
+                if (!data || !data.status || (data.status && data.status !== "success")) {
+                    peertubeHelpers.notifier.error(data.message || "Unknown error");
+                    return;
+                }
+
+                window.location.reload();
+            }
+        }
+
+        buttons = document.getElementsByClassName("markRefusedAd");
+        for(let i = 0; i < buttons.length; i++) {
+            let el = buttons[i];
+            el.onclick = async function() {
+                let id = this.getAttribute("data-id");
+                console.log("Mark " + id + " to refused");
+
+                // Fetch admin history
+                const response = await fetch(baseUrl + "/mark-ad-request?state=-1&id=" + id, {
                     method: "GET",
                     headers: peertubeHelpers.getAuthHeader(),
                 });

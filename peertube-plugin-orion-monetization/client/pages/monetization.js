@@ -10,7 +10,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
    **/
   const monetizationTitle = await peertubeHelpers.translate("Monetization");
   const monetizationDesc = await peertubeHelpers.translate(
-    "You can enable monetization on each video settings. When enabled, user viewing your video mine some MINTME and you can request a payout after a minimum amount."
+    "You can enable monetization on each video settings. You can request a payout after a minimum amount."
   );
   const youEarn = await peertubeHelpers.translate("Earn for 1M hashes");
   const currentPending = await peertubeHelpers.translate("Currently pending");
@@ -47,6 +47,100 @@ async function showPage({ rootEl, peertubeHelpers }) {
   const settings = await peertubeHelpers.getSettings();
   const baseUrl = peertubeHelpers.getBaseRouterRoute();
 
+
+  rootEl.innerHTML = "<div class='container mt-5'><h1>"+ monetizationTitle +"</h1><p>"+monetizationDesc+"</p></div>";
+
+  /**
+   * ADS
+   */
+  {
+    // Fetch user miner stats
+    const response = await fetch(baseUrl + "/ads-views", {
+      method: "GET",
+      headers: peertubeHelpers.getAuthHeader(),
+    });
+    const data = await response.json();
+    const devise = await settings['ads-earns-devise'];
+
+     // Construct history
+    let historyHtml = "";
+    if (data.history && data.history.length > 0) {
+      for (let i = 0; i < data.history.length; i++) {
+        let history = data.history[i];
+        var curdate = new Date(null);
+        curdate.setTime(history.date);
+        let dateStr = curdate.toLocaleString();
+
+        historyHtml += `
+              <tr>
+                <td>${dateStr}</td>
+                <td>${history.amount} ${devise}</td>
+                <td>${history.views || 0}</td>
+                <td>${history.paypal}</td>
+                <td>${
+                  history.state === 0
+                    ? pendingTd
+                    : history.state === -1
+                    ? refusedTd
+                    : processedTd
+                }</td>
+              </tr>
+            `;
+      }
+    }
+
+    const views = data.views;
+    const earns = data.earns;
+    const earnPer1000 = await settings['ads-earns-per-1000'];
+    const minPay = await settings['ads-min-payout'];
+    
+    rootEl.innerHTML += `
+    <div class="container  mt-2 mb-5">
+      <h3>${await peertubeHelpers.translate("Ads Request")}</h3>
+      <p>
+        <b>${await peertubeHelpers.translate("Earns for 1000 views")}: ${earnPer1000}${devise}</b> <i>(${minPayout} ${minPay} ${devise})</i><br>
+        <b>${currentPending}: ${earns.toFixed(3)} ${devise}</b> <i>(${currentlyHashesPending} ${views} ${await peertubeHelpers.translate("views")})</i><br>
+      </p>
+  
+      <h2>${doRequest}</h2>
+      <p>
+        ${requestPayoutDesc}
+      </p>
+      <form method="post" action="" id="ads-payout-form">
+        <div class="form-group">
+          <label for="paypal">${await peertubeHelpers.translate("Paypal address")}</label>
+          <input class="form-control" type="text" name="paypal" id="paypal" placeholder="Ex: email@domain.tld" />
+        </div>
+
+        <div class="form-group">
+          <input type="submit" class="btn btn-primary" id="submit" value="${sendBtn}" />
+        </div>
+      </form>
+  
+      <h2>${historyTitle}</h2>
+      <p>${historyDesc}</p>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>${dateTh}</th>
+            <th>${amountTh}</th>
+            <th>${await peertubeHelpers.translate("Views")}</th>
+            <th>${await peertubeHelpers.translate("Paypal")}</th>
+            <th>${stateTh}</th>
+          </tr>
+        </thead>
+  
+        <tbody>
+          ${historyHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+  }
+
+  /**
+   * MINER
+   */
   // Fetch user miner stats
   const response = await fetch(baseUrl + "/miner-stats", {
     method: "GET",
@@ -94,55 +188,54 @@ async function showPage({ rootEl, peertubeHelpers }) {
   const pending = data.message.pending;
   const pendingMintmeAmount = (earnPer1M * (pending / 1000000)).toFixed(8);
 
-  rootEl.innerHTML = `
-        <div class="container">
-          <h1>${monetizationTitle}</h1>
-          <p>
-            ${monetizationDesc}<br>
-            <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
-            <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
-          </p>
+  rootEl.innerHTML += `
+    <div class="container mt-2 mb-5">
+      <h3>${await peertubeHelpers.translate("Miner Requests")}</h3>
+      <p>
+        <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
+        <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
+      </p>
 
-          <h2>${doRequest}</h2>
-          <p>
-            ${requestPayoutDesc}<br>
-            ${requestPayoutDesc2}
-          </p>
-          <form method="post" action="" id="miner-payout-form">
-            <div class="form-group">
-              <label for="amount">${amountLabel}</label>
-              <input class="form-control" type="text" name="amount" id="amount" placeholder="Ex: 0.02" />
-            </div>
-
-            <div class="form-group">
-              <label for="wallet">${walletLabel}</label>
-              <input class="form-control" type="text" name="wallet" id="wallet" placeholder="Ex: 0Xretkhjnkljnsdgjresldgnkjhres" />
-            </div>
-
-            <div class="form-group">
-              <input type="submit" class="btn btn-primary" id="submit" value="${sendBtn}" />
-            </div>
-          </form>
-
-          <h2>${historyTitle}</h2>
-          <p>${historyDesc}</p>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>${dateTh}</th>
-                <th>${amountTh}</th>
-                <th>Hashes</th>
-                <th>${walletTh}</th>
-                <th>${stateTh}</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              ${historyHtml}
-            </tbody>
-          </table>
+      <h2>${doRequest}</h2>
+      <p>
+        ${requestPayoutDesc}<br>
+        ${requestPayoutDesc2}
+      </p>
+      <form method="post" action="" id="miner-payout-form">
+        <div class="form-group">
+          <label for="amount">${amountLabel}</label>
+          <input class="form-control" type="text" name="amount" id="amount" placeholder="Ex: 0.02" />
         </div>
-      `;
+
+        <div class="form-group">
+          <label for="wallet">${walletLabel}</label>
+          <input class="form-control" type="text" name="wallet" id="wallet" placeholder="Ex: 0Xretkhjnkljnsdgjresldgnkjhres" />
+        </div>
+
+        <div class="form-group">
+          <input type="submit" class="btn btn-primary" id="submit" value="${sendBtn}" />
+        </div>
+      </form>
+
+      <h2>${historyTitle}</h2>
+      <p>${historyDesc}</p>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>${dateTh}</th>
+            <th>${amountTh}</th>
+            <th>Hashes</th>
+            <th>${walletTh}</th>
+            <th>${stateTh}</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${historyHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
 
   setTimeout(() => {
     document
@@ -167,7 +260,31 @@ async function showPage({ rootEl, peertubeHelpers }) {
             console.error(error);
             peertubeHelpers.notifier.error(error);
           });
-      });
+    });
+
+    document
+      .getElementById("ads-payout-form")
+      .addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const form = new URLSearchParams(new FormData(e.target));
+        fetch(baseUrl + "/ads-payout", {
+          method: "POST",
+          headers: peertubeHelpers.getAuthHeader(),
+          body: form,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.status && data.status === "success")
+              return window.location.reload();
+
+            peertubeHelpers.notifier.error(data.message);
+          })
+          .catch((error) => {
+            console.error(error);
+            peertubeHelpers.notifier.error(error);
+          });
+    });
   }, 1000);
 }
 
