@@ -18,10 +18,10 @@ export async function buildPlayer(peertubeHelpers, video, player, videojs) {
         return;
     }
 
-    // if(video.duration < 30) {
-    //     console.log("Video is too short, skip video ads.");
-    //     return;
-    // }
+    if(video.duration < 30) {
+        console.log("Video is too short, skip video ads.");
+        return;
+    }
 
     const zoneID = await settings['craftyourads-zone-id'];
     const api = `https://manager.craftyourads.com/adserve?zone_id=${zoneID}&type=json`;
