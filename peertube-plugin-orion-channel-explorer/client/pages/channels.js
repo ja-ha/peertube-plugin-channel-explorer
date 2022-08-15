@@ -1,6 +1,6 @@
 let baseUrl;
 let latest = 0;
-let perPage = 10;
+let perPage = 20;
 
 async function showPage({ rootEl, peertubeHelpers }) {
     baseUrl = peertubeHelpers.getBaseRouterRoute();
@@ -67,16 +67,37 @@ async function loadNextChannels(peertubeHelpers) {
         latest += channels.length;
         for(let i = 0; i < channels.length; i++) {
             const channel = channels[i];
+            if(!channel.username) return;
+
             const node = document.createElement("div");
-            const uri = encodeURIComponent(channel.name);
             
             node.className = "col-sm-12 col-md-6 mt-2";
             node.innerHTML = `
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">${channel.name}</h5>
-                        <p class="card-text">${channel.description || await peertubeHelpers.translate("No description provided")}</p>
-                        <a href="/c/${uri}/videos" class="btn btn-primary">${await peertubeHelpers.translate("Visit channel")}</a>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6">
+                                <h5 class="card-title">
+                                    ${channel.name}<br>
+                                    <small>@${channel.username||"Unknown"}</small>
+                                </h5>
+                                <p class="card-text">${channel.description || await peertubeHelpers.translate("No description provided")}</p>
+                                <a href="/c/${channel.username}/videos" class="btn btn-primary">${await peertubeHelpers.translate("Visit channel")}</a>
+                            </div>
+
+                            <div class="col-sm-12 col-md-6">
+                                <h5>${await peertubeHelpers.translate("Latest videos")}</h5>
+                                <ul>
+                                    ${channel.latestVideos?.map(video => `
+                                        <li>
+                                            <a href="/w/${video.uuid}">
+                                                ${video.name}
+                                            </a>
+                                        </li>
+                                    `)?.join("") || await peertubeHelpers.translate("No videos found")}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -86,8 +107,6 @@ async function loadNextChannels(peertubeHelpers) {
 
     } catch (error) {
         console.log(error);
-        peertubeHelpers.notifier.error(error.message);
-        return;
     }
 
     isWorking = false;
