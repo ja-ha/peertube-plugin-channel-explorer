@@ -299,12 +299,23 @@ async function unbanChannel(channelId, peertubeHelpers, storageManager) {
 }
 
 async function getChannelIdByName(peertubeHelpers, name) {
+  // Get actor
+  const actor = await peertubeHelpers.database.query(
+    'SELECT "id" FROM "actor" WHERE "preferredUsername" = $actorId',
+    {
+      type: "SELECT",
+      bind: { actorId: name }
+    }
+  );
+
+  if (!actor || actor.length == 0) return null;
+
   // Get channel
   const results = await peertubeHelpers.database.query(
-    'SELECT "id" from "videoChannel" WHERE "name" = $channelId',
+    'SELECT "id" from "videoChannel" WHERE "actorId" = $actorId',
     {
       type: 'SELECT',
-      bind: { channelId: name }
+      bind: { actorId: actor[0].id }
     }
   );
 
