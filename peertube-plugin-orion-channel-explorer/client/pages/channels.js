@@ -27,18 +27,13 @@ async function showPage({ rootEl, peertubeHelpers }) {
 
     // When page is scrolled to botoom, refresh the channels list
     window.onscroll = function() {
+        // If current url != channels/explore, return
+        if(window.location.pathname !== "/p/channels/explore") return;
+
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             loadNextChannels(peertubeHelpers);
         }
     };
-
-    registerHook({
-        target: "action:router.navigation-end",
-        handler: (params) => {
-            // Cancel onscroll event
-            window.onscroll = null;
-        }
-    });
 }
 
 export { showPage };
