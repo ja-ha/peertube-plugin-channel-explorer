@@ -400,7 +400,13 @@ async function register({
     },
   });
 
-  // Registering all settings for admin
+
+  
+  // Settigns 
+
+  /**
+   * Video ads
+   */
   registerSetting({
     type: 'html',
     html: '<h3>Video Ads Settings</h3>'
@@ -417,7 +423,7 @@ async function register({
 
   registerSetting({
     name: "craftyourads-zone-id",
-    label: "Your CraftYourAds zone ID",
+    label: "Your CraftYourAds zone ID (Video)",
     type: "input",
     private: false,
     descriptionHTML: "Your Publisher Zone ID. Signup on <a href='https://www.craftyourads.com' target='blank_'>CraftYourAds.com</a>",
@@ -461,6 +467,36 @@ async function register({
   });
 
 
+  /**
+   * Banner ads
+   */
+  registerSetting({
+    type: 'html',
+    html: '<h3>Banner Ads Settings</h3>'
+  })
+
+  registerSetting({
+    name: "enable-banner-ads",
+    label: "Enable banner ads ?",
+    type: "input-checkbox",
+    private: false,
+    descriptionHTML: "Add ads banner in videos list and search result. Only monetize instance admin.",
+    default: false,
+  });
+
+  registerSetting({
+    name: "craftyourads-zone-id-image",
+    label: "Your CraftYourAds zone ID (Image)",
+    type: "input",
+    private: false,
+    descriptionHTML: "Your Publisher Zone ID. Signup on <a href='https://www.craftyourads.com' target='blank_'>CraftYourAds.com</a>",
+    default: "get-it-on-your-craftyourads-account",
+  });
+
+
+  /**
+   * Miner
+   */
   registerSetting({
     type: 'html',
     html: '<br><h3>Crypto-miner Settings</h3>'

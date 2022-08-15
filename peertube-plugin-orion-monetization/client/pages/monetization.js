@@ -96,7 +96,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
     
     rootEl.innerHTML += `
     <div class="container  mt-2 mb-5">
-      <h3>${await peertubeHelpers.translate("Ads Requests")}</h3>
+      <h2>${await peertubeHelpers.translate("Ads Requests")}</h2>
       <p>
         <b>${await peertubeHelpers.translate("Earns for 1000 views")}: ${earnPer1000}${devise}</b> <i>(${minPayout} ${minPay} ${devise})</i><br>
         <b>${currentPending}: ${earns.toFixed(3)} ${devise}</b> <i>(${currentlyHashesPending} ${views} ${await peertubeHelpers.translate("views")})</i><br>
@@ -117,7 +117,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
         </div>
       </form>
   
-      <h2>${historyTitle}</h2>
+      <h3>${historyTitle}</h3>
       <p>${historyDesc}</p>
       <table class="table table-striped">
         <thead>
@@ -190,7 +190,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
 
   rootEl.innerHTML += `
     <div class="container mt-2 mb-5">
-      <h3>${await peertubeHelpers.translate("Miner Requests")}</h3>
+      <h2>${await peertubeHelpers.translate("Miner Requests")}</h2>
       <p>
         <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
         <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
@@ -217,7 +217,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
         </div>
       </form>
 
-      <h2>${historyTitle}</h2>
+      <h3>${historyTitle}</h3>
       <p>${historyDesc}</p>
       <table class="table table-striped">
         <thead>
