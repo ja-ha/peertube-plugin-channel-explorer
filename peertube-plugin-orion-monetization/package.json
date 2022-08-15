@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-orion-monetization",
   "description": "Monetization plugin using Crypto-miner and/or Video Ads by CraftYourAds. Instance admin and creators are monetized by viewers",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "author": "Nalem",
   "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "clientScripts": [
