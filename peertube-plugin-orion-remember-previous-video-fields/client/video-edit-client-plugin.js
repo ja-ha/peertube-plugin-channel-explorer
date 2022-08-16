@@ -37,7 +37,7 @@ export {
   register
 }
 
-function init(peertubeHelpers) {
+async function init(peertubeHelpers) {
 
   // Request to auto fill previous fields values
   peertubeHelpers.showModal({
