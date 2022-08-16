@@ -96,10 +96,10 @@ async function register({
 
       // Video views stats (using fromDate, toDate)
       request = await peertubeHelpers.database.query(
-        'SELECT "videoId", "views", "startDate", "endDate" FROM "videoView" WHERE "startDate" >= $start AND "endDate" <= $end',
+        'SELECT "videoId", "views", "startDate", "endDate" FROM "videoView" WHERE "startDate" >= $start AND "endDate" <= $end AND "videoId" IN (SELECT "id" FROM "video" WHERE "remote" = $remote)',
         {
           type: "SELECT",
-          bind: { start: fromDate.format('YYYY-MM-DD HH:mm:ss'), end: toDate.format('YYYY-MM-DD HH:mm:ss') }
+          bind: { start: fromDate.format('YYYY-MM-DD HH:mm:ss'), end: toDate.format('YYYY-MM-DD HH:mm:ss'), remote: false }
         }
       );
 

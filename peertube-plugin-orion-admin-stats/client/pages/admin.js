@@ -137,9 +137,9 @@ async function refreshChart(data = null, params = null, baseUrl = null, peertube
         for (let i = 0; i < data.data.videoViewsStats.length; i++) {
             const item = data.data.videoViewsStats[i];
             // items contain views
-            array.push([item.date, item.items.length, item.items.map(item => item.views).reduce((a, b) => a + b), item.items.map(item => item.views).reduce((a, b) => a + b) / item.items.length]);
+            array.push([item.date, item.items.length, item.items.map(item => item.views).reduce((a, b) => a + b), Math.round(item.items.map(item => item.views).reduce((a, b) => a + b) / item.items.length)]);
         }
-
+        console.log(array)
         var dataChart = google.visualization.arrayToDataTable(array);
         var options = {
             title: await peertubeHelpers.translate('Videos views'),
