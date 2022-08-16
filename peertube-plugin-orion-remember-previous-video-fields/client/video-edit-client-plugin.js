@@ -26,7 +26,7 @@ function register({ registerHook, peertubeHelpers }) {
         // Wait for hidden not exist
         if(!document.querySelector('form').hasAttribute('hidden')) {
           clearInterval(timer);
-          setTimeout(init, 500);
+          setTimeout(init, 500, peertubeHelpers);
         }
       }, 300);
     }
@@ -37,8 +37,24 @@ export {
   register
 }
 
-function init() {
-  fillFormFields();
+function init(peertubeHelpers) {
+
+  // Request to auto fill previous fields values
+  peertubeHelpers.showModal({
+    title: await peertubeHelpers.translate("Auto-fill previous field"),
+    content: await peertubeHelpers.translate("Do you want to auto-fill previous field values?"),
+    close: true,
+    cancel: {
+      value: await peertubeHelpers.translate("No"),
+    },
+    confirm: {
+      value: await peertubeHelpers.translate("Yes"),
+      action: () => {
+        // Fill form fields
+        fillFormFields();
+      }
+    }
+  });
 
   const publishButton = document.querySelector("[label='Publier']");
   publishButton.addEventListener('click', onSubmitSaveFieldsValues);
