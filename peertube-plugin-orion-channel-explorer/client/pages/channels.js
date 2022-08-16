@@ -77,7 +77,7 @@ async function loadNextChannels(peertubeHelpers) {
                                     <small>@${channel.username||"Unknown"}</small>
                                 </h5>
                                 <p class="card-text">${channel.description || await peertubeHelpers.translate("No description provided")}</p>
-                                <a href="/c/${channel.username}/videos" class="btn btn-primary">${await peertubeHelpers.translate("Visit channel")}</a>
+                                <a href="/c/${channel.url}/videos" class="btn btn-primary">${await peertubeHelpers.translate("Visit channel")}</a>
                             </div>
 
                             <div class="col-sm-12 col-md-6">

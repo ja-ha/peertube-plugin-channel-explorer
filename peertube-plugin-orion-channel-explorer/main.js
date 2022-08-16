@@ -23,7 +23,7 @@ async function register({
       }
 
       const channels = await peertubeHelpers.database.query(
-        'SELECT * FROM "videoChannel" ORDER BY "updatedAt" ASC LIMIT $limit OFFSET $skip',
+        'SELECT "id", "actorId", "name", "description" FROM "videoChannel" ORDER BY "updatedAt" ASC LIMIT $limit OFFSET $skip',
         {
           type: "SELECT",
           bind: { skip: parseInt(skip), limit: parseInt(limit) }
@@ -34,7 +34,7 @@ async function register({
         for(let i = 0; i < channels.length; i++) {
           const channel = channels[i];
           const actor = await peertubeHelpers.database.query(
-            'SELECT * FROM "actor" WHERE "id" = $actorId',
+            'SELECT "preferredUsername", "url" FROM "actor" WHERE "id" = $actorId',
             {
               type: "SELECT",
               bind: { actorId: channel.actorId }
@@ -43,10 +43,11 @@ async function register({
   
           if(actor && actor.length > 0) {
             channel.username = actor[0].preferredUsername;
+            channel.url = channel.username + "@" + actor[0].url.split("/")[2];
           }
           
           const videos = await peertubeHelpers.database.query(
-            'SELECT * FROM "video" WHERE "channelId" = $channelId AND "privacy" = $privacy AND"state" = $state ORDER BY "publishedAt" DESC LIMIT 5',
+            'SELECT "uuid", "name" FROM "video" WHERE "channelId" = $channelId AND "privacy" = $privacy AND"state" = $state ORDER BY "publishedAt" DESC LIMIT 5',
             {
               type: "SELECT",
               bind: { channelId: channel.id, privacy: "1", state: "1" }
