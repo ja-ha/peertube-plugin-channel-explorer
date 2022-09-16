@@ -23,7 +23,7 @@ async function register({
       }
 
       const channels = await peertubeHelpers.database.query(
-        'SELECT "id", "actorId", "name", "description" FROM "videoChannel" ORDER BY "updatedAt" ASC LIMIT $limit OFFSET $skip',
+        'SELECT "id", "actorId", "name", "description" FROM "videoChannel" ORDER BY "updatedAt" DESC LIMIT $limit OFFSET $skip',
         {
           type: "SELECT",
           bind: { skip: parseInt(skip), limit: parseInt(limit) }
