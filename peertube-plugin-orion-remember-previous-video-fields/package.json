@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-orion-remember-previous-video-fields",
   "description": "Plugin to remember previous video fields when upload new video",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Nalem",
   "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "clientScripts": [
