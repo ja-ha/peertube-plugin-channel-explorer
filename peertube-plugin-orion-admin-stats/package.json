@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-orion-admin-stats",
   "description": "Plugin to display stats about instance in the admin dashboard",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Nalem",
   "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "clientScripts": [
