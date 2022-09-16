@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-orion-channel-explorer",
   "description": "Allow users to explore channels in the Discover page",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "author": "Nalem",
   "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "clientScripts": [
