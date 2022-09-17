@@ -1,12 +1,13 @@
 function register({ registerHook, peertubeHelpers }) {
   const baseUrl = peertubeHelpers.getBaseRouterRoute();
-  var channelsButton = null;
+  var buttonsContainer = null;
+  var banType = null;
   var isModerator = false;
 
 
-  const checkChannelIsBanned = async () => {
-    channelsButton = document.querySelector(".channel-buttons");
-    if (!channelsButton) return;
+  const checkIsBanned = async () => {
+    buttonsContainer = document.querySelector(".channel-buttons") || document.querySelector(".account-info .buttons");
+    if (!buttonsContainer) return;
 
     const oldUnbanBtn = document.getElementById("orion-unban-btn");
     if (oldUnbanBtn)
@@ -16,8 +17,12 @@ function register({ registerHook, peertubeHelpers }) {
     if (oldBanBtn)
       oldBanBtn.remove();
 
-    const channelName = window.location.pathname.split("/")[2];
-    const respone = await fetch(baseUrl + "/is-channel-banned?channelId=" + channelName, {
+    const link = window.location.pathname.split("/");
+    const type = link[1] === "a" ? "accountId" : "channelId";
+    banType = link[1];
+
+    const channelOrAccountName = link[2];
+    const respone = await fetch(baseUrl + "/is-banned?"+type+"=" + channelOrAccountName, {
       method: "GET",
       headers: peertubeHelpers.getAuthHeader(),
     });
@@ -34,8 +39,8 @@ function register({ registerHook, peertubeHelpers }) {
       const endDate = new Date(data.endAt);
       const strDate = endDate.toLocaleString();
       peertubeHelpers.showModal({
-        title: await peertubeHelpers.translate("This channel is temporary banned!"),
-        content: await peertubeHelpers.translate("Sorry, you can't access to this channel until") + " " + strDate,
+        title: banType === "c" ? await peertubeHelpers.translate("This channel is temporary banned!") : await peertubeHelpers.translate("This account is temporary banned!"),
+        content: await peertubeHelpers.translate("Sorry, you can't access to this page until") + " " + strDate,
         close: false,
         cancel: {
           value: (!isModerator) ? await peertubeHelpers.translate("Back to homepage") : await peertubeHelpers.translate("Close"),
@@ -46,15 +51,15 @@ function register({ registerHook, peertubeHelpers }) {
         }
       })
 
-      addChannelUnbanBtn();
+      addUnbanBtn();
     }else{
       
-      addChannelBanBtn();
+      addBanBtn();
     }
 
   };
 
-  const addChannelUnbanBtn = async () => {
+  const addUnbanBtn = async () => {
     if (!isModerator) return;
 
     const unbannBtn = document.createElement("a");
@@ -66,10 +71,10 @@ function register({ registerHook, peertubeHelpers }) {
       openUnbanModal();
     });
 
-    channelsButton.appendChild(unbannBtn);
+    buttonsContainer.appendChild(unbannBtn);
   }
 
-  const addChannelBanBtn = async () => {
+  const addBanBtn = async () => {
     if (!isModerator) return;
 
     const banBtn = document.createElement("a");
@@ -81,12 +86,12 @@ function register({ registerHook, peertubeHelpers }) {
       openBanModal();
     });
 
-    channelsButton.appendChild(banBtn);
+    buttonsContainer.appendChild(banBtn);
   };
 
   const openBanModal = async () => {
     peertubeHelpers.showModal({
-      title: await peertubeHelpers.translate("Ban a channel"),
+      title: banType === "c" ? await peertubeHelpers.translate("Ban a channel") : await peertubeHelpers.translate("Ban account"),
       content: "",
       close: true,
       cancel: {
@@ -96,8 +101,8 @@ function register({ registerHook, peertubeHelpers }) {
 
     document.querySelector(".modal-body").innerHTML = `
       <div class="container">
-        <form method="post" action="#" id="ban-channel-form">
-          <input type="hidden" name="channelId" value="${window.location.pathname.split("/")[2]}">
+        <form method="post" action="#" id="ban-form">
+          <input type="hidden" name="${banType === "c" ? "channelId" : "accountId"}" value="${window.location.pathname.split("/")[2]}">
           <div class="form-group">
             <label for="duration">${await peertubeHelpers.translate("Duration")}</label>
             <select class="form-control" name="duration">
@@ -128,8 +133,8 @@ function register({ registerHook, peertubeHelpers }) {
 
   const openUnbanModal = async () => {
     peertubeHelpers.showModal({
-      title: await peertubeHelpers.translate("Unban a channel"),
-      content: await peertubeHelpers.translate("Are you sure you want to unban this channel?"),
+      title: banType === "c" ? await peertubeHelpers.translate("Unban a channel") :  await peertubeHelpers.translate("Unban account"),
+      content: await peertubeHelpers.translate("Are you sure you want to unban it?"),
       close: true,
       cancel: {
         value: await peertubeHelpers.translate("Cancel"),
@@ -138,7 +143,7 @@ function register({ registerHook, peertubeHelpers }) {
         value: await peertubeHelpers.translate("Unban"),
         action: () => {
           const formData = new FormData();
-          formData.append("channelId", window.location.pathname.split("/")[2]);
+          formData.append(banType === "c" ? "channelId" : "accountId", window.location.pathname.split("/")[2]);
           const form = new URLSearchParams(formData);
           fetch(baseUrl + "/unban", {
             method: "POST",
@@ -148,7 +153,7 @@ function register({ registerHook, peertubeHelpers }) {
             .then((res) => res.json())
             .then(async (data) => {
               if (data && data.status && data.status === "success") {
-                peertubeHelpers.notifier.success(await peertubeHelpers.translate("Channel unbanned"));
+                peertubeHelpers.notifier.success(banType === "c" ? await peertubeHelpers.translate("Channel unbanned") : await peertubeHelpers.translate("Account unbanned"));
                 setTimeout(() => window.location.reload(), 1000);
                 return;
               }
@@ -167,7 +172,7 @@ function register({ registerHook, peertubeHelpers }) {
   const onSubmitFormBan = async () => {
     setTimeout(() => {
       document
-        .getElementById("ban-channel-form")
+        .getElementById("ban-form")
         .addEventListener("submit", (e) => {
           e.preventDefault();
 
@@ -180,7 +185,7 @@ function register({ registerHook, peertubeHelpers }) {
             .then((res) => res.json())
             .then(async (data) => {
               if (data && data.status && data.status === "success") {
-                peertubeHelpers.notifier.success(await peertubeHelpers.translate("Channel banned"));
+                peertubeHelpers.notifier.success(banType === "c" ? await peertubeHelpers.translate("Channel banned") : await peertubeHelpers.translate("Account banned"));
                 setTimeout(() => window.location.reload(), 1000);
                 return;
               }
@@ -198,7 +203,7 @@ function register({ registerHook, peertubeHelpers }) {
   registerHook({
     target: "action:router.navigation-end",
     handler: (params) => {
-      setTimeout(checkChannelIsBanned, 1000);
+      setTimeout(checkIsBanned, 1000);
     }
   });
 

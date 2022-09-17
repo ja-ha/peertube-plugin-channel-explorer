@@ -1,4 +1,5 @@
-const BAN_DATE_KEY = 'orion-ban-date';
+const BAN_DATE_KEY_CHANNEL = 'orion-ban-date';
+const BAN_DATE_KEY_ACCOUNT = 'orion-ban-account-date';
 const CHANNEL_BANNED_REASON_KEY = 'mod-channel-temporary-banned';
 
 async function register({
@@ -36,23 +37,42 @@ async function register({
         return;
       }
   
-      const { channelId } = req.body; // duration in days
-      const duration = parseInt(req.body.duration);
-      if (!channelId || !duration) {
+      const { channelId, accountId } = req.body;
+      const duration = parseInt(req.body.duration); // duration in days
+      if ((!channelId && !accountId) || !duration) {
         res.json({ status: "failure", message: "Missing parameters." });
         return;
       }
-  
-      // Get channel
-      const realChannelId = await getChannelIdByName(peertubeHelpers, channelId);
-      if (!realChannelId) {
-        res.json({ status: "failure", message: "Channel not found." });
+
+      if(channelId) {
+        // Get channel
+        const realChannelId = await getChannelIdByName(peertubeHelpers, channelId);
+        if (!realChannelId) {
+          res.json({ status: "failure", message: "Channel not found." });
+          return;
+        }
+    
+        banChannel(realChannelId, duration, peertubeHelpers, storageManager);
+    
+        res.json({ status: "success", message: "Channel banned for " + duration + " days." });
         return;
       }
+
+      if(accountId) {
+        const realAccountId = await getAccountIdByName(peertubeHelpers, accountId);
+        if(!realAccountId) {
+          res.json({ status: "failure", message: "Account not found." });
+          return;
+        }
+
+        banAccount(realAccountId, duration, peertubeHelpers, storageManager);
+
+        res.json({ status: "success", message: "Channel banned for " + duration + " days." });
+        return;
+      }
+
+      res.json({ status: "failure", message: "Unknown error." });
   
-      banChannel(realChannelId, duration, peertubeHelpers, storageManager);
-  
-      res.json({ status: "success", message: "Channel banned for " + duration + " days." });
     } catch (error) {
       peertubeHelpers.logger.error(error.message, { error });
       res.json({ status: "failure", message: error.message });
@@ -69,29 +89,41 @@ async function register({
         return;
       }
   
-      const { channelId } = req.body;
-      if (!channelId) {
+      const { channelId, accountId } = req.body;
+      if (!channelId && !accountId) {
         res.json({ status: "failure", message: "Missing parameters." });
         return;
       }
-  
-      // Get channel
-      const results = await peertubeHelpers.database.query(
-        'SELECT "id" from "videoChannel" WHERE "name" = $channelId',
-        {
-          type: 'SELECT',
-          bind: { channelId }
+
+      if(channelId) {
+    
+        const realChannelId = await getChannelIdByName(peertubeHelpers, channelId);
+        if(!realChannelId) {
+          res.json({ status: "failure", message: "Channel not found." });
+          return;
         }
-      );
-      if (!results || results.length == 0) {
-        res.json({ status: "failure", message: "Channel not found." });
+
+        unbanChannel(realChannelId, peertubeHelpers, storageManager);
+
+        res.json({ status: "success", message: "Channel unbanned." });
         return;
       }
+
+      if(accountId) {
+        const realAccountId = await getAccountIdByName(peertubeHelpers, accountId);
+        if(!realAccountId) {
+          res.json({ status: "failure", message: "Account not found." });
+          return;
+        }
+
+        unbanAccount(realAccountId, peertubeHelpers, storageManager);
+
+        res.json({ status: "success", message: "Account unbanned." });
+        return;
+      }
+
+      res.json({ status: "failure", message: "Unknown error." });
   
-      const realChannelId = results[0].id;
-      await unbanChannel(realChannelId, peertubeHelpers, storageManager);
-  
-      res.json({ status: "success", message: "Channel unbanned." });
     } catch (error) {
       peertubeHelpers.logger.error(error.message, { error });
       res.json({ status: "failure", message: error.message });
@@ -99,23 +131,41 @@ async function register({
   });
 
   // Route:: is channel banned ?
-  router.get("/is-channel-banned", async (req, res) => {
+  router.get("/is-banned", async (req, res) => {
     console.log(req.query);
     try {
-      const channelId = req.query.channelId;
-      if (!channelId) {
+      const typeId = req.query.channelId || req.query.accountId || null;
+      if (!typeId) {
         res.json({ status: "failure", message: "Missing parameters." });
         return;
       }
-  
-      const realChannelId = await getChannelIdByName(peertubeHelpers, channelId);
-      if (!realChannelId) {
-        res.json({ status: "failure", message: "Channel not found." });
+
+      if(req.query?.channelId) {
+        const realChannelId = await getChannelIdByName(peertubeHelpers, req.query.channelId);
+        if (!realChannelId) {
+          res.json({ status: "failure", message: "Channel not found." });
+          return;
+        }
+    
+        const isBanned = await isChannelBanned(realChannelId, peertubeHelpers, storageManager);
+        res.json({ status: "success", isBanned: isBanned !== false, endAt: isBanned });
         return;
       }
+
+      if(req.query?.accountId) {
+        const realAccountId = await getAccountIdByName(peertubeHelpers, req.query.accountId);
+        if(!realAccountId) {
+          res.json({ status: "failure", message: "Account not found." });
+          return;
+        }
+        
+        const isBanned = await isAccountBanned(realAccountId, peertubeHelpers, storageManager);
+        res.json({ status: "success", isBanned: isBanned !== false, endAt: isBanned });
+        return;
+      }
+
+      res.json({ status: "failure", message: "Unknown error." });
   
-      const isBanned = await isChannelBanned(realChannelId, peertubeHelpers, storageManager);
-      res.json({ status: "success", isBanned: isBanned !== false, endAt: isBanned });
 
     } catch (error) {
       peertubeHelpers.logger.error(error.message, { error });
@@ -138,7 +188,6 @@ async function register({
     registerHook({
       target: hook,
       handler: async ({ accepted }, { video }) => {
-        console.log(video)
         if (!accepted) return { accepted: false };
         if (!video) return { accepted: accepted };
         if (!video.channelId) return { accepted: accepted };
@@ -150,6 +199,74 @@ async function register({
         }
   
         return { accepted: true };
+      }
+    });
+  }
+
+
+  /**
+   * Deny access to comments if account is banned
+   */
+  for(const hook of [
+    "filter:api.video-comment-reply.create.accept.result",
+  ]) {
+    registerHook({
+      target: hook,
+      handler: async ({ accepted }, { video }) => {
+        console.log("---------------- IIICCCIIII ---------------");
+        console.log(video)
+        if (!accepted) return { accepted: false };
+        if (!video) return { accepted: accepted };
+        if (!video.channelId) return { accepted: accepted };
+  
+        const channelId = video.channelId;
+        const isBanned = await isAccountBanned(channelId, peertubeHelpers, storageManager);
+        if(isBanned) {
+          return { accepted: false, errorMessage: "You are banned from this channel." };
+        }
+  
+        return { accepted: true };
+      }
+    });
+  }
+  /**
+   * Deny access to channel creation if account is banned
+   */
+  for(const hook of [
+    "action:api.video-channel.created"
+  ]) {
+    registerHook({
+      target: hook,
+      handler: async ({ videoChannel }) => {
+        console.log("---------------- IIICCCIIII ---------------");
+        console.log(videoChannel)
+        if(!videoChannel) return videoChannel;
+        if(!videoChannel.id) return videoChannel;
+  
+        const channelId = videoChannel.id;
+        const channel = await peertubeHelpers.database.query(
+          'SELECT "accountId" from "videoChannel" WHERE "id" = $channelId',
+          {
+            type: 'SELECT',
+            bind: { channelId: channelId }
+          }
+        );
+
+        if(!channel || channel.length == 0) return videoChannel;
+
+        const isBanned = await isAccountBanned(channel.accountId, peertubeHelpers, storageManager);
+        if(isBanned) {
+          const unbanDate = await storageManager.getData(BAN_DATE_KEY_ACCOUNT + "-" + accountId);
+          if(unbanDate) {
+            const nowDate = new Date();
+            const difference = unbanDate.getTime() - nowDate.getTime();
+            const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+  
+            banChannel(videoChannel.id, TotalDays, peertubeHelpers, storageManager);
+          }
+        }
+  
+        return videoChannel;
       }
     });
   }
@@ -199,20 +316,64 @@ async function checkChannelsToUnban(peertubeHelpers, storageManager) {
   }
 }
 
-async function isChannelBanned(channelId, peertubeHelpers, storageManager) {
-  const unbanDate = await storageManager.getData(BAN_DATE_KEY + "-" + channelId);
+async function isAccountBanned(accountId, peertubeHelpers, storageManager) {
+  const unbanDate = await storageManager.getData(BAN_DATE_KEY_ACCOUNT + "-" + accountId);
   if (unbanDate) {
     const now = new Date();
     if (now < new Date(unbanDate)) {
       return new Date(unbanDate);
     } else {
-      await storageManager.storeData(BAN_DATE_KEY + "-" + channelId, null);
+      await storageManager.storeData(BAN_DATE_KEY_ACCOUNT + "-" + accountId, null);
+      await unbanAccount(accountId, peertubeHelpers, storageManager);
+    }
+  }
+
+  return false;
+}
+
+async function isChannelBanned(channelId, peertubeHelpers, storageManager) {
+  const unbanDate = await storageManager.getData(BAN_DATE_KEY_CHANNEL + "-" + channelId);
+  if (unbanDate) {
+    const now = new Date();
+    if (now < new Date(unbanDate)) {
+      return new Date(unbanDate);
+    } else {
+      await storageManager.storeData(BAN_DATE_KEY_CHANNEL + "-" + channelId, null);
       await unbanChannel(channelId, peertubeHelpers, storageManager);
     }
   }
 
   return false;
 }
+
+async function banAccount(accountId, duration, peertubeHelpers, storageManager) {
+  
+  // Get account owned channels
+  const channels = await peertubeHelpers.database.query(
+    'SELECT "id" from "videoChannel" WHERE "accountId" = $accountId',
+    {
+      type: 'SELECT',
+      bind: { accountId }
+    }
+  );
+
+  // Ban all channels
+  if(channels) {
+    for(let i = 0; i < channels.length; i++) {
+      const channel = channels[i];
+      if(!channel || !channel.id) continue;
+      await banChannel(channel.id, duration, peertubeHelpers, storageManager);
+    }
+  }
+
+  // Set unban date using duration in days
+  const unbanDate = new Date();
+  unbanDate.setDate(unbanDate.getDate() + duration);
+
+  await storageManager.storeData(BAN_DATE_KEY_ACCOUNT + "-" + accountId, unbanDate);
+  peertubeHelpers.logger.info('Account ' + accountId + ' banned for ' + duration + ' days');
+}
+
 async function banChannel(channelId, duration, peertubeHelpers, storageManager) {
   // Get videos channel
   const videos = await peertubeHelpers.database.query(
@@ -255,8 +416,31 @@ async function banChannel(channelId, duration, peertubeHelpers, storageManager) 
   const unbanDate = new Date();
   unbanDate.setDate(unbanDate.getDate() + duration);
 
-  await storageManager.storeData(BAN_DATE_KEY + "-" + channelId, unbanDate);
+  await storageManager.storeData(BAN_DATE_KEY_CHANNEL + "-" + channelId, unbanDate);
   peertubeHelpers.logger.info('Channel ' + channelId + ' banned for ' + duration + ' days');
+}
+
+async function unbanAccount(accountId, peertubeHelpers, storageManager) {
+  // Get account owned channels
+  const channels = await peertubeHelpers.database.query(
+    'SELECT "id" from "videoChannel" WHERE "accountId" = $accountId',
+    {
+      type: 'SELECT',
+      bind: { accountId }
+    }
+  );
+
+  // UnBan all channels
+  if(channels) {
+    for(let i = 0; i < channels.length; i++) {
+      const channel = channels[i];
+      if(!channel || !channel.id) continue;
+      await unbanChannel(channel.id, peertubeHelpers, storageManager);
+    }
+  }
+
+  await storageManager.storeData(BAN_DATE_KEY_ACCOUNT + "-" + accountId, null);
+  peertubeHelpers.logger.info('Account ' + accountId + ' unbanned');
 }
 
 async function unbanChannel(channelId, peertubeHelpers, storageManager) {
@@ -294,24 +478,78 @@ async function unbanChannel(channelId, peertubeHelpers, storageManager) {
     }
   }
 
-  await storageManager.storeData(BAN_DATE_KEY + "-" + channelId, null);
+  await storageManager.storeData(BAN_DATE_KEY_CHANNEL + "-" + channelId, null);
   peertubeHelpers.logger.info('Channel ' + channelId + ' unbanned');
 }
 
-async function getChannelIdByName(peertubeHelpers, name) {
+async function getAccountIdByName(peertubeHelpers, name) {
+
   // Get actor
-  const actor = await peertubeHelpers.database.query(
-    'SELECT "id" FROM "actor" WHERE "preferredUsername" = $actorId',
+  let actor = null;
+  if(name.indexOf("@") !== -1) {
+    const link = name.split("@");
+  
+    actor = await peertubeHelpers.database.query(
+      'SELECT "id" FROM "actor" WHERE "url" LIKE $url AND "type" = $type',
+      {
+        type: "SELECT",
+        bind: { url: "%" + link[1] + "/accounts/" + link[0], type: "Person" }
+      }
+    );
+  }else{
+    actor = await peertubeHelpers.database.query(
+      'SELECT "id" FROM "actor" WHERE "preferredUsername" = $actorId AND type = $type',
+      {
+        type: "SELECT",
+        bind: { actorId: name, type: "Person" }
+      }
+    );
+  }
+
+  if (!actor || actor.length == 0) return null;
+
+  // Get account
+  const account = await peertubeHelpers.database.query(
+    'SELECT "id" FROM "account" WHERE "actorId" = $actorId',
     {
       type: "SELECT",
-      bind: { actorId: name }
+      bind: { actorId: actor[0].id }
     }
   );
+
+  if (!account || account.length == 0) return null;
+
+  return account[0].id;
+}
+
+async function getChannelIdByName(peertubeHelpers, name) {
+  
+  // Get actor
+  let actor = null;
+  if(name.indexOf("@") !== -1) {
+    const link = name.split("@");
+  
+    actor = await peertubeHelpers.database.query(
+      'SELECT "id" FROM "actor" WHERE "url" LIKE $url AND "type" = $type',
+      {
+        type: "SELECT",
+        bind: { url: "%" + link[1] + "/video-channels/" + link[0], type: "Group" }
+      }
+    );
+  }else{
+    actor = await peertubeHelpers.database.query(
+      'SELECT "id" FROM "actor" WHERE "preferredUsername" = $actorId AND type = $type',
+      {
+        type: "SELECT",
+        bind: { actorId: name, type: "Group" }
+      }
+    );
+  }
 
   if (!actor || actor.length == 0) return null;
 
   // Get channel
-  const results = await peertubeHelpers.database.query(
+  const channel = await peertubeHelpers.database.query(
     'SELECT "id" from "videoChannel" WHERE "actorId" = $actorId',
     {
       type: 'SELECT',
@@ -319,7 +557,7 @@ async function getChannelIdByName(peertubeHelpers, name) {
     }
   );
 
-  if (!results || results.length == 0) return null;
+  if (!channel || channel.length == 0) return null;
 
-  return results[0].id;
+  return channel[0].id;
 }
