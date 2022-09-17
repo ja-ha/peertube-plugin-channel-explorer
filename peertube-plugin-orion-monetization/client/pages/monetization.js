@@ -102,7 +102,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
         <b>${currentPending}: ${earns.toFixed(3)} ${devise}</b> <i>(${currentlyHashesPending} ${views} ${await peertubeHelpers.translate("views")})</i><br>
       </p>
   
-      <h2>${doRequest}</h2>
+      <h3>${doRequest}</h3>
       <p>
         ${requestPayoutDesc}
       </p>
@@ -196,7 +196,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
         <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
       </p>
 
-      <h2>${doRequest}</h2>
+      <h3>${doRequest}</h3>
       <p>
         ${requestPayoutDesc}<br>
         ${requestPayoutDesc2}

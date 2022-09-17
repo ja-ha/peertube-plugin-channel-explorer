@@ -1,6 +1,8 @@
 const MonetizationPage = require("./pages/monetization");
 const AdminPage = require("./pages/admin");
 var adsjs = null;
+var last_page = null;
+var last_insert_index = null;
 
 async function register({
   registerHook,
@@ -81,8 +83,14 @@ function bannerAds(zoneID) {
     insertAd(".results-header", ".entry");
     //insertAd(".video-info-first-row", ".video-info-name");
     insertAd(".videos", ".video-wrapper");
+    insertAd(".other-videos", "my-video-miniature");
 
     setTimeout(() => {
+      let curr_page = window.location.href;
+      if(curr_page !== last_page) {
+        last_insert_index = null;
+      }
+
       if (adsjs !== null) {
         adsjs.remove();
         adsjs = null;
@@ -101,7 +109,8 @@ function insertAd(requiredClassname, selectors) {
   if (document.querySelector(requiredClassname)) {
     let allResults = document.querySelectorAll(selectors);
     if (allResults.length > 0) {
-      const random = Math.floor(Math.random() * (allResults.length - 0)) + 0;
+      const min_index = last_insert_index ? last_insert_index : 0;
+      const random = Math.floor(Math.random() * (allResults.length - min_index + 1) + min_index)
       const randomElem = allResults[random];
       const ad = document.createElement("div");
       ad.className = "image-zone-tag-container";
