@@ -1,4 +1,4 @@
-# PeerTube plugin Minetization
+# PeerTube plugin Monetization
 
 ## Table of Contents
 

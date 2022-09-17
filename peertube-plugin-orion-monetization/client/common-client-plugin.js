@@ -37,7 +37,7 @@ async function register({
 
         const container = document.getElementsByClassName("sub-menu")[0];
         const content = `
-          <a _ngcontent-dke-c79="" id="monetization-link" routerlinkactive="active" class="title-page title-page-settings ng-star-inserted" href="${href}">
+          <a _ngcontent-dke-c79="" id="monetization-link" routerlinkactive="active" class="sub-menu-entry ng-star-inserted" href="${href}">
             ${Monetizeation}
           </a>
         `;

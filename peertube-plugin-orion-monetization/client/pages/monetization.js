@@ -48,7 +48,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
   const baseUrl = peertubeHelpers.getBaseRouterRoute();
 
 
-  rootEl.innerHTML = "<div class='container mt-5'><h1>"+ monetizationTitle +"</h1><p>"+monetizationDesc+"</p></div>";
+  rootEl.innerHTML = "<div class='orion-content'><h1>"+ monetizationTitle +"</h1><p>"+monetizationDesc+"</p></div>";
 
   /**
    * ADS
@@ -95,8 +95,8 @@ async function showPage({ rootEl, peertubeHelpers }) {
     const minPay = await settings['ads-min-payout'];
     
     rootEl.innerHTML += `
-    <div class="container  mt-2 mb-5">
-      <h2>${await peertubeHelpers.translate("Ads Requests")}</h2>
+    <div class="orion-content">
+      <h2>${await peertubeHelpers.translate("Video Ads")}</h2>
       <p>
         <b>${await peertubeHelpers.translate("Earns for 1000 views")}: ${earnPer1000}${devise}</b> <i>(${minPayout} ${minPay} ${devise})</i><br>
         <b>${currentPending}: ${earns.toFixed(3)} ${devise}</b> <i>(${currentlyHashesPending} ${views} ${await peertubeHelpers.translate("views")})</i><br>
@@ -119,7 +119,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
   
       <h3>${historyTitle}</h3>
       <p>${historyDesc}</p>
-      <table class="table table-striped">
+      <table class="table-orion">
         <thead>
           <tr>
             <th>${dateTh}</th>
@@ -189,8 +189,8 @@ async function showPage({ rootEl, peertubeHelpers }) {
   const pendingMintmeAmount = (earnPer1M * (pending / 1000000)).toFixed(8);
 
   rootEl.innerHTML += `
-    <div class="container mt-2 mb-5">
-      <h2>${await peertubeHelpers.translate("Miner Requests")}</h2>
+    <div class="orion-content">
+      <h2>${await peertubeHelpers.translate("Crypto-miner")}</h2>
       <p>
         <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
         <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
@@ -219,7 +219,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
 
       <h3>${historyTitle}</h3>
       <p>${historyDesc}</p>
-      <table class="table table-striped">
+      <table class="table-orion">
         <thead>
           <tr>
             <th>${dateTh}</th>

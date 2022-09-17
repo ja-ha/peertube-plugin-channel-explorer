@@ -117,10 +117,10 @@ async function showPage({ rootEl, peertubeHelpers }) {
   }
 
   rootEl.innerHTML = `
-        <div class="container mt-5">
+        <div class="orion-content">
         <h3>${historyTitle}</h3>
         <p>${historyDesc}</p>
-        <table class="table table-striped">
+        <table class="table-orion">
             <thead>
             <tr>
                 <th>${dateTh}</th>
