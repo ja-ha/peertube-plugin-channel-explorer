@@ -23,29 +23,45 @@ export async function buildPlayer(peertubeHelpers, video, player, videojs) {
 
 
     // Get settings
-    const settings = await peertubeHelpers.getSettings();
-    const adsEnabled = await settings['enable-video-ads'];
-    const adsDuration = await settings['ads-duration-seconds'];
+    let settings, adsEnabled, adsDuration, zoneID;
+    if(peertubeHelpers) {
+        settings = await peertubeHelpers.getSettings();
+        adsEnabled = await settings['enable-video-ads'];
+        adsDuration = await settings['ads-duration-seconds'];
+        zoneID = await settings['craftyourads-zone-id'];
+    }else{
+        const response = await fetch("/plugins/orion-monetization/1.5.0/router/ads-settings");
+        const data = await response.json();
+
+        adsEnabled = data['enable-video-ads'];
+        adsDuration = data['ads-duration-seconds'];
+        zoneID = data['craftyourads-zone-id'];
+    }
+
+    // Check enabled
     if (!adsEnabled) {
         console.log("Video ads are disabled by admin, skip next.");
         return;
     }
 
+    // Check video duration
     if(video.duration < 30) {
         console.log("Video is too short, skip video ads.");
         return;
     }
 
-    const zoneID = await settings['craftyourads-zone-id'];
-    const api = `https://manager.craftyourads.com/adserve?zone_id=${zoneID}&type=json`;
+    // Wait for player ready and save the current video
     await player.ready();
     const base_src = {
         src: player.currentSrc(),
         type: player.currentType()
     }
-
+    
     // Get video ads
     try {
+        // Set api link
+        const api = `https://manager.craftyourads.com/adserve?zone_id=${zoneID}&type=json`;
+
         const response = await fetch(api);
         const data = await response.json();
 
@@ -125,7 +141,7 @@ async function addAdsSkipTimer(peertubeHelpers, player, fallback_src, creative_u
         });
         player.preload('auto');
         player.controls(true);
-        player.off("playing");
+        // player.off("playing");
         player.currentTime(0);
         player.play();
 

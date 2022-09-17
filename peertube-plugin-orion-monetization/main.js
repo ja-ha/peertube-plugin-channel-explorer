@@ -223,6 +223,27 @@ async function register({
   });
 
 
+  // Route: Get ads settings
+  router.get("/ads-settings", async (req, res) => {
+    const enabled = await settingsManager.getSetting(
+      "enable-video-ads"
+    );
+    const duration = await settingsManager.getSetting(
+      "ads-duration-seconds"
+    );
+    const zoneID = await settingsManager.getSetting(
+      "craftyourads-zone-id"
+    );
+
+    return res.json({ status: "success", data: {
+      "enable-video-ads" : enabled,
+      "ads-duration-seconds" : duration,
+      "craftyourads-zone-id" : zoneID
+    }});
+    
+  })
+
+
   // Route: Ping ads view
   router.get("/ping-ads", async (req, res) => {
     try {
