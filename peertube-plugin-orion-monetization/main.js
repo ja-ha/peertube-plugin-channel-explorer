@@ -288,6 +288,10 @@ async function register({
       
       // Get ads views for the user
       const views = await storageManager.getData("orion-ads-views-" + user.id) || 0;
+      if(views <= 0) {
+        res.json({ status: "failure", message: "You need more views to ba able to request a payout" });
+        return;
+      }
 
       // Min payout & devise
       const minPayout = await settingsManager.getSetting("ads-min-payout");

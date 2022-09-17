@@ -53,7 +53,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
   /**
    * ADS
    */
-  {
+  if(await settings['enable-video-ads'] == true){
     // Fetch user miner stats
     const response = await fetch(baseUrl + "/ads-views", {
       method: "GET",
@@ -109,7 +109,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
       <form method="post" action="" id="ads-payout-form">
         <div class="form-group">
           <label for="paypal">${await peertubeHelpers.translate("Paypal address")}</label>
-          <input class="form-control" type="text" name="paypal" id="paypal" placeholder="Ex: email@domain.tld" />
+          <input class="form-control" type="email" name="paypal" id="paypal" required placeholder="Ex: email@domain.tld" />
         </div>
 
         <div class="form-group">
@@ -141,150 +141,156 @@ async function showPage({ rootEl, peertubeHelpers }) {
   /**
    * MINER
    */
-  // Fetch user miner stats
-  const response = await fetch(baseUrl + "/miner-stats", {
-    method: "GET",
-    headers: peertubeHelpers.getAuthHeader(),
-  });
-  const data = await response.json();
+   if(await settings['enable-miner'] == true){
+    // Fetch user miner stats
+    const response = await fetch(baseUrl + "/miner-stats", {
+      method: "GET",
+      headers: peertubeHelpers.getAuthHeader(),
+    });
+    const data = await response.json();
 
-  // If have error
-  if (!data || !data.status || (data.status && data.status !== "success")) {
-    peertubeHelpers.notifier.error(data.message || "Unknown error");
-    rootEl.innerHTML = `<h1>${data.message || "Unknown error"}</h1>`;
-    return;
-  }
-
-  // Construct history
-  let historyHtml = "";
-  if (data.history && data.history.length > 0) {
-    for (let i = 0; i < data.history.length; i++) {
-      let history = data.history[i];
-      var curdate = new Date(null);
-      curdate.setTime(history.date);
-      let dateStr = curdate.toLocaleString();
-
-      historyHtml += `
-            <tr>
-              <td>${dateStr}</td>
-              <td>${history.amount} MINTME</td>
-              <td>${history.hashes || 0}</td>
-              <td>${history.wallet}</td>
-              <td>${
-                history.state === 0
-                  ? pendingTd
-                  : history.state === -1
-                  ? refusedTd
-                  : processedTd
-              }</td>
-            </tr>
-          `;
+    // If have error
+    if (!data || !data.status || (data.status && data.status !== "success")) {
+      peertubeHelpers.notifier.error(data.message || "Unknown error");
+      rootEl.innerHTML = `<h1>${data.message || "Unknown error"}</h1>`;
+      return;
     }
+
+    // Construct history
+    let historyHtml = "";
+    if (data.history && data.history.length > 0) {
+      for (let i = 0; i < data.history.length; i++) {
+        let history = data.history[i];
+        var curdate = new Date(null);
+        curdate.setTime(history.date);
+        let dateStr = curdate.toLocaleString();
+
+        historyHtml += `
+              <tr>
+                <td>${dateStr}</td>
+                <td>${history.amount} MINTME</td>
+                <td>${history.hashes || 0}</td>
+                <td>${history.wallet}</td>
+                <td>${
+                  history.state === 0
+                    ? pendingTd
+                    : history.state === -1
+                    ? refusedTd
+                    : processedTd
+                }</td>
+              </tr>
+            `;
+      }
+    }
+
+    // Miner user data
+    const earnPer1M = settings["miner-earn-per-1m-hashes"];
+    const minForPayout = settings["miner-min-payout"];
+    const pending = data.message.pending;
+    const pendingMintmeAmount = (earnPer1M * (pending / 1000000)).toFixed(8);
+
+    rootEl.innerHTML += `
+      <div class="orion-content">
+        <h2>${await peertubeHelpers.translate("Crypto-miner")}</h2>
+        <p>
+          <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
+          <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
+        </p>
+
+        <h3>${doRequest}</h3>
+        <p>
+          ${requestPayoutDesc}<br>
+          ${requestPayoutDesc2}
+        </p>
+        <form method="post" action="" id="miner-payout-form">
+          <div class="form-group">
+            <label for="amount">${amountLabel}</label>
+            <input class="form-control" type="text" name="amount" id="amount" required min="${minForPayout}"placeholder="Ex: 0.02" />
+          </div>
+
+          <div class="form-group">
+            <label for="wallet">${walletLabel}</label>
+            <input class="form-control" type="text" name="wallet" id="wallet" required minlength="6" placeholder="Ex: 0Xretkhjnkljnsdgjresldgnkjhres" />
+          </div>
+
+          <div class="form-group">
+            <input type="submit" class="btn btn-primary" id="submit" value="${sendBtn}" />
+          </div>
+        </form>
+
+        <h3>${historyTitle}</h3>
+        <p>${historyDesc}</p>
+        <table class="table-orion">
+          <thead>
+            <tr>
+              <th>${dateTh}</th>
+              <th>${amountTh}</th>
+              <th>Hashes</th>
+              <th>${walletTh}</th>
+              <th>${stateTh}</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${historyHtml}
+          </tbody>
+        </table>
+      </div>
+    `;
   }
 
-  // Miner user data
-  const earnPer1M = settings["miner-earn-per-1m-hashes"];
-  const minForPayout = settings["miner-min-payout"];
-  const pending = data.message.pending;
-  const pendingMintmeAmount = (earnPer1M * (pending / 1000000)).toFixed(8);
-
-  rootEl.innerHTML += `
-    <div class="orion-content">
-      <h2>${await peertubeHelpers.translate("Crypto-miner")}</h2>
-      <p>
-        <b>${youEarn}: ${earnPer1M} MINTME</b> <i>(${minPayout} ${minForPayout} MINTME)</i><br>
-        <b>${currentPending}: ${pendingMintmeAmount} MINTME</b> <i>(${currentlyHashesPending} ${pending} Hashes)</i><br>
-      </p>
-
-      <h3>${doRequest}</h3>
-      <p>
-        ${requestPayoutDesc}<br>
-        ${requestPayoutDesc2}
-      </p>
-      <form method="post" action="" id="miner-payout-form">
-        <div class="form-group">
-          <label for="amount">${amountLabel}</label>
-          <input class="form-control" type="text" name="amount" id="amount" placeholder="Ex: 0.02" />
-        </div>
-
-        <div class="form-group">
-          <label for="wallet">${walletLabel}</label>
-          <input class="form-control" type="text" name="wallet" id="wallet" placeholder="Ex: 0Xretkhjnkljnsdgjresldgnkjhres" />
-        </div>
-
-        <div class="form-group">
-          <input type="submit" class="btn btn-primary" id="submit" value="${sendBtn}" />
-        </div>
-      </form>
-
-      <h3>${historyTitle}</h3>
-      <p>${historyDesc}</p>
-      <table class="table-orion">
-        <thead>
-          <tr>
-            <th>${dateTh}</th>
-            <th>${amountTh}</th>
-            <th>Hashes</th>
-            <th>${walletTh}</th>
-            <th>${stateTh}</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${historyHtml}
-        </tbody>
-      </table>
-    </div>
-  `;
-
-  setTimeout(() => {
-    document
-      .getElementById("miner-payout-form")
-      .addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const form = new URLSearchParams(new FormData(e.target));
-        fetch(baseUrl + "/miner-payout", {
-          method: "POST",
-          headers: peertubeHelpers.getAuthHeader(),
-          body: form,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && data.status && data.status === "success")
-              return window.location.reload();
-
-            peertubeHelpers.notifier.error(data.message);
+  setTimeout(async () => {
+    if(await settings['enable-miner'] == true) {
+      document
+        .getElementById("miner-payout-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+  
+          const form = new URLSearchParams(new FormData(e.target));
+          fetch(baseUrl + "/miner-payout", {
+            method: "POST",
+            headers: peertubeHelpers.getAuthHeader(),
+            body: form,
           })
-          .catch((error) => {
-            console.error(error);
-            peertubeHelpers.notifier.error(error);
-          });
-    });
+            .then((res) => res.json())
+            .then((data) => {
+              if (data && data.status && data.status === "success")
+                return window.location.reload();
+  
+              peertubeHelpers.notifier.error(data.message);
+            })
+            .catch((error) => {
+              console.error(error);
+              peertubeHelpers.notifier.error(error);
+            });
+      });
+    }
 
-    document
-      .getElementById("ads-payout-form")
-      .addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const form = new URLSearchParams(new FormData(e.target));
-        fetch(baseUrl + "/ads-payout", {
-          method: "POST",
-          headers: peertubeHelpers.getAuthHeader(),
-          body: form,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && data.status && data.status === "success")
-              return window.location.reload();
-
-            peertubeHelpers.notifier.error(data.message);
+    if(await settings['enable-video-ads'] == true) {
+      document
+        .getElementById("ads-payout-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+  
+          const form = new URLSearchParams(new FormData(e.target));
+          fetch(baseUrl + "/ads-payout", {
+            method: "POST",
+            headers: peertubeHelpers.getAuthHeader(),
+            body: form,
           })
-          .catch((error) => {
-            console.error(error);
-            peertubeHelpers.notifier.error(error);
-          });
-    });
+            .then((res) => res.json())
+            .then((data) => {
+              if (data && data.status && data.status === "success")
+                return window.location.reload();
+  
+              peertubeHelpers.notifier.error(data.message);
+            })
+            .catch((error) => {
+              console.error(error);
+              peertubeHelpers.notifier.error(error);
+            });
+      });
+    }
   }, 1000);
 }
 
