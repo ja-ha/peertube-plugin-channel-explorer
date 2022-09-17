@@ -10,6 +10,18 @@ async function register({
 }) {
   const router = getRouter();
 
+  // IP view clean (only one/day per ip)
+  const IP_VIEW = [];
+  const clearIpViews = () => {
+    if(IP_VIEW.length)
+      IP_VIEW.splice(0, IP_VIEW.length);
+
+      const secondUntilEndOfTheDay = 86400 - Math.floor(new Date() / 1000) % 86400;
+      setTimeout(clearIpViews, secondUntilEndOfTheDay);
+  };
+  clearIpViews();
+
+
   // Route: User get stats info
   router.get("/miner-stats", async (req, res) => {
     // Get keys in admin settings
@@ -214,6 +226,15 @@ async function register({
   // Route: Ping ads view
   router.get("/ping-ads", async (req, res) => {
     try {
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      if(IP_VIEW.indexOf(ip) !== -1) {
+        res.json({ status: "failure", message: "Ad request already filled today." });
+        return;
+      }
+
+      // Add ip view
+      IP_VIEW.push(ip);
+
       // Save ads count in storage for the target user
       const { accountId } = req.query;
   
@@ -320,6 +341,7 @@ async function register({
   // Route: Admin mark ad request
   router.get("/mark-ad-request", async (req, res) => {
     try {
+
       // Get auth user
       const user = await peertubeHelpers.user.getAuthUser(res);
       if(!user || user.role != 0) {
