@@ -22,7 +22,7 @@ async function register({
 
         // Create link
         const content = `
-          <a _ngcontent-dke-c79="" id="admin-stats-link" routerlinkactive="active" class="title-page title-page-settings ng-star-inserted" href="${href}">
+          <a _ngcontent-dke-c79="" id="admin-stats-link" routerlinkactive="active" class="sub-menu-entry ng-star-inserted" href="${href}">
             ${await peertubeHelpers.translate("Statistics")}
           </a>
         `;

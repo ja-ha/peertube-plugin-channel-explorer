@@ -26,72 +26,74 @@ async function showPage({ rootEl, peertubeHelpers }) {
     }
 
     rootEl.innerHTML = `
-        <div class="container">
+        <div class="orion-content">
             <h1>${await peertubeHelpers.translate("Instance statistics")}</h1>
 
-            <div class="row">
-                <div class="col-sm-12 col-md-6 col-lg-2 card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">${await peertubeHelpers.translate("Total Accounts")}</h5>
-                        <p class="card-text">${data.data.usersCount}</p>
+            <div class="card mt-4">
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 col-lg-2">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">${await peertubeHelpers.translate("Total Accounts")}</h5>
+                            <p class="card-text">${data.data.usersCount}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-2 card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">${await peertubeHelpers.translate("Registered this month")}</h5>
-                        <p class="card-text">${data.data.usersThisMonth}</p>
+                    <div class="col-sm-12 col-md-6 col-lg-2">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">${await peertubeHelpers.translate("Registered this month")}</h5>
+                            <p class="card-text">${data.data.usersThisMonth}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-2 card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">${await peertubeHelpers.translate("Total Videos")}</h5>
-                        <p class="card-text">${data.data.videosCount}</p>
+                    <div class="col-sm-12 col-md-6 col-lg-2">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">${await peertubeHelpers.translate("Total Videos")}</h5>
+                            <p class="card-text">${data.data.videosCount}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-2 card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">${await peertubeHelpers.translate("Uploaded this month")}</h5>
-                        <p class="card-text">${data.data.videosThisMonth}</p>
+                    <div class="col-sm-12 col-md-6 col-lg-2">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">${await peertubeHelpers.translate("Uploaded this month")}</h5>
+                            <p class="card-text">${data.data.videosThisMonth}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-2 card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">${await peertubeHelpers.translate("Open abuses")}</h5>
-                        <p class="card-text">${data.data.openAbusesCount}</p>
+                    <div class="col-sm-12 col-md-6 col-lg-2">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">${await peertubeHelpers.translate("Open abuses")}</h5>
+                            <p class="card-text">${data.data.openAbusesCount}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card mt-4">
-            <div class="card-body">
-                <form method="GET" action="#" id="refresh-stats">
-                    <div class="row">
-                        <h5 class="col-sm-12 col-md-6 col-lg-2 card-title">${await peertubeHelpers.translate("Filter")}</h5>
-                        <div class="col-sm-12 col-md-6 col-lg-2 form-group">
-                            <label for="dateFrom">${await peertubeHelpers.translate("Date from")}</label>
-                            <input type="date" class="form-control" id="dateFrom" placeholder="${await peertubeHelpers.translate("Date from")}">
-                        </div>
-                        <div class="col-sm-12 col-md-6 col-lg-2 form-group">
-                            <label for="dateTo">${await peertubeHelpers.translate("Date to")}</label>
-                            <input type="date" class="form-control" id="dateTo" placeholder="${await peertubeHelpers.translate("Date to")}">
-                        </div>
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form method="GET" action="#" id="refresh-stats">
+                        <div class="row">
+                            <h5 class="col-sm-12 col-lg-2 card-title">${await peertubeHelpers.translate("Filter")}</h5>
+                            <div class="col-sm-12 col-md-6 col-lg-2 form-group">
+                                <label for="dateFrom">${await peertubeHelpers.translate("Date from")}</label>
+                                <input type="date" class="form-control" id="dateFrom" placeholder="${await peertubeHelpers.translate("Date from")}">
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-2 form-group">
+                                <label for="dateTo">${await peertubeHelpers.translate("Date to")}</label>
+                                <input type="date" class="form-control" id="dateTo" placeholder="${await peertubeHelpers.translate("Date to")}">
+                            </div>
 
-                        <div class="col-sm-12 col-md-6 col-lg-2 form-group">
-                            <label for="groupBy">${await peertubeHelpers.translate("Group by")}</label>
-                            <select class="form-control" id="groupBy">
-                                <option value="day">${await peertubeHelpers.translate("Day")}</option>
-                                <option value="month">${await peertubeHelpers.translate("Month")}</option>
-                                <option value="year">${await peertubeHelpers.translate("Year")}</option>
-                            </select>
-                        </div>
+                            <div class="col-sm-12 col-md-6 col-lg-2 form-group">
+                                <label for="groupBy">${await peertubeHelpers.translate("Group by")}</label>
+                                <select class="form-control" id="groupBy">
+                                    <option value="day">${await peertubeHelpers.translate("Day")}</option>
+                                    <option value="month">${await peertubeHelpers.translate("Month")}</option>
+                                    <option value="year">${await peertubeHelpers.translate("Year")}</option>
+                                </select>
+                            </div>
 
-                        <button type="submit" class="btn btn-primary">${await peertubeHelpers.translate("Filter")}</button>
-                    </div>
-                </form>
+                            <button type="submit" class="col-sm-12 col-md-6 col-lg-2 btn btn-primary">${await peertubeHelpers.translate("Filter")}</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
+        
         <div id="chart_div" class="mt-4" style="width: 100%; height: 500px;"></div>
     `;
 
