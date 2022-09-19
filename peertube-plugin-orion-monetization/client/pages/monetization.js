@@ -54,13 +54,18 @@ async function showPage({ rootEl, peertubeHelpers }) {
    * ADS
    */
   if(await settings['enable-video-ads'] == true){
-    // Fetch user miner stats
+    // Fetch user ads views stats
     const response = await fetch(baseUrl + "/ads-views", {
       method: "GET",
       headers: peertubeHelpers.getAuthHeader(),
     });
     const data = await response.json();
     const devise = await settings['ads-earns-devise'];
+
+    // If have error
+    if (!data || !data.status || (data.status && data.status !== "success")) {
+      peertubeHelpers.notifier.error("Error getting ads stats: " + data.message || "Unknown error");
+    }
 
      // Construct history
     let historyHtml = "";
@@ -151,9 +156,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
 
     // If have error
     if (!data || !data.status || (data.status && data.status !== "success")) {
-      peertubeHelpers.notifier.error(data.message || "Unknown error");
-      rootEl.innerHTML = `<h1>${data.message || "Unknown error"}</h1>`;
-      return;
+      peertubeHelpers.notifier.error("Error getting miner stats: " + data.message || "Unknown error");
     }
 
     // Construct history
