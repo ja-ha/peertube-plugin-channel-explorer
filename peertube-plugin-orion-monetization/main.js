@@ -562,7 +562,7 @@ async function register({
     name: "miner-coinimp-secret-api-key",
     label: "CoinIMP secret API key",
     type: "input",
-    private: false,
+    private: true,
     descriptionHTML: "The account secret API key. Signup on <a href='https://www.coinimp.com' target='blank_'>CoinIMP.com</a>",
     default: "get-it-on-your-coinimp-account",
   });
