@@ -1,7 +1,7 @@
 {
-  "name": "peertube-plugin-orion-moderation-tools",
-  "description": "Plugin to temporary or permanent ban of account/channels",
-  "version": "1.1.0",
+  "name": "peertube-plugin-orion-sell-storage",
+  "description": "Plugin to sell storage subscriptions to users using Stripe",
+  "version": "1.0.0",
   "author": "Nalem",
   "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "clientScripts": [
@@ -16,19 +16,20 @@
     "assets/style.css"
   ],
   "engine": {
-    "peertube": ">=4.2.0"
+    "peertube": ">=4.3.0"
   },
   "homepage": "https://git.orion-serv.fr/Orion/Peertube-plugins",
   "keywords": [
     "peertube",
     "plugin",
-    "moderation"
+    "admin",
+    "stats"
   ],
   "library": "./main.js",
   "scripts": {
     "prepare": "npm run build",
     "build": "node ./scripts/build.js",
-    "pl:install": "cd ../../PeerTube && npm run plugin:uninstall -- --npm-name peertube-plugin-orion-moderation-tools && npm run plugin:install -- --plugin-path /Users/thommy/Websites/peertube-dev/plugins/peertube-plugin-orion-moderation-tools"
+    "pl:install": "cd ../../PeerTube && npm run plugin:uninstall -- --npm-name peertube-plugin-orion-sell-storage && npm run plugin:install -- --plugin-path /Users/thommy/Websites/peertube-dev/plugins/peertube-plugin-orion-sell-storage"
   },
   "staticDirs": {
     "images": "public/images"
@@ -38,5 +39,10 @@
   },
   "devDependencies": {
     "esbuild": "^0.14.36"
+  },
+  "dependencies": {
+    "express": "^4.18.1",
+    "moment": "^2.29.4",
+    "stripe": "^10.11.0"
   }
 }

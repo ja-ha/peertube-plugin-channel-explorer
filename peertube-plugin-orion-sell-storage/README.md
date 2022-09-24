@@ -1,4 +1,4 @@
-# PeerTube plugin Channel explorer
+# PeerTube plugin Sell Storage
 
 ## Table of Contents
 
@@ -8,7 +8,7 @@
 
 ## About <a name = "about"></a>
 
-This plugin add new page to explore PeerTube channels of the fediverse
+This plugin allow you to see some stats about your instance in the Admin dashboard
 
 ## Getting Started <a name = "getting_started"></a>
 
@@ -22,10 +22,10 @@ Check [Prerequisites](#Prerequisites) to install this plugin
 
 - Go to your instance Admin
 - Navigate to the "Plugins" page
-- Search for "orion-channel-explorer"
+- Search for "orion-admin-stats"
 - Click Install near the plugin name
 
 ## Usage <a name = "usage"></a>
 
-- Navigate to the Discover page
-- Click on Explore channels button at the top
+- Navigate to the Admin dashboard
+- Navigate to the new navigation link "Statistics"
