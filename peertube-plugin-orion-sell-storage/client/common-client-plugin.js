@@ -25,7 +25,7 @@ async function register({
         // Create link
         const content = `
           <a _ngcontent-dke-c79="" id="subscription-link" routerlinkactive="active" class="sub-menu-entry ng-star-inserted" href="${href}">
-            ${await peertubeHelpers.translate("My Subscription")}
+            ${await peertubeHelpers.translate("Storage")}
           </a>
         `;
 
