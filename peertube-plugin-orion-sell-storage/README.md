@@ -47,7 +47,7 @@ Its time to add your Plans! In stripe, go to Product page, and add new product. 
 After creation, go in this new Product and grab the "API ID" near the price field.
 
 Now, you can continue configure your Plan (1, 2, 3) in the plugin settings.
-Repeat this process for each plans. Add new product, and grave the API ID corresponding to this price to insert it in your Product ID field, in the plugin settings.
+Repeat this process for each plans. Add new product, and grab the API ID corresponding to this price to insert it in your Product ID field, in the plugin settings.
 
 ## Usage <a name = "usage"></a>
 

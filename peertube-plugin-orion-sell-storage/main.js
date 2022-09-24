@@ -394,6 +394,24 @@ function registerMenuSettings(registerSetting) {
     default: "You **want tu spport us** ? Or **need more space** ? Your in the right place!"
   });
 
+  registerSetting({
+    name: "sell-thx-description",
+    label: "Thank you page description",
+    type: "markdown-enhanced",
+    private: false,
+    descriptionHTML: "If you want to show a text on the Success page after payment",
+    default: ""
+  });
+
+  registerSetting({
+    name: "sell-cancel-description",
+    label: "Cancel page description",
+    type: "markdown-enhanced",
+    private: false,
+    descriptionHTML: "If you want to show a text on the Cancel page after payment canceled",
+    default: ""
+  });
+
 
   // Products settings
   registerSetting({

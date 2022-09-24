@@ -6,8 +6,10 @@ async function showPage({ rootEl, peertubeHelpers }) {
     rootEl.innerHTML = loading + "...";
 
     const { translate } = peertubeHelpers;
+    const description = await peertubeHelpers.markdownRenderer.enhancedMarkdownToHTML(settings["sell-thx-description"]);
+
     rootEl.innerHTML = `
-        <div class="orion-content text-center">
+        <div class="orion-content text-center mt-5">
             <h1>${await peertubeHelpers.translate("Subscription succesfull!")}</h1>
             
             <div class="mt-5">
@@ -16,6 +18,8 @@ async function showPage({ rootEl, peertubeHelpers }) {
                     <button id="checkout-and-portal-button" type="submit" class="btn btn-primary">${await translate("Manage my Subscription")}</button>
                 </form>
             </div>
+
+            <p>${description}</p>
         </div>
     `;
 
