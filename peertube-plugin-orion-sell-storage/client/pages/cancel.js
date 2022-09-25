@@ -2,6 +2,7 @@ async function showPage({ rootEl, peertubeHelpers }) {
     // Redirect to login page if not auth
     if (!peertubeHelpers.isLoggedIn()) return (window.location.href = "/login");
 
+    const settings = await peertubeHelpers.getSettings();
     const description = await peertubeHelpers.markdownRenderer.enhancedMarkdownToHTML(settings["sell-cancel-description"]);
 
     rootEl.innerHTML = `
