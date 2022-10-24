@@ -35,7 +35,7 @@
     "images": "public/images"
   },
   "translations": {
-    "fr-FR": "./languages/fr.json"
+    "fr-FR": "./languages/fr.json",
     "ru-RU": "./languages/ru.json"
   },
   "devDependencies": {
