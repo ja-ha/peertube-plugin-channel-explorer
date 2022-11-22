@@ -56,5 +56,8 @@
   },
   "translations": {
     "fr-FR": "./languages/fr.json"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0"
   }
 }
