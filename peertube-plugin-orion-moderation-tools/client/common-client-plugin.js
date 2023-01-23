@@ -2,7 +2,7 @@ function register({ registerHook, peertubeHelpers }) {
   const baseUrl = peertubeHelpers.getBaseRouterRoute();
   var buttonsContainer = null;
   var banType = null;
-  var isModerator = false;
+  var isModerator = null;
 
 
   const checkIsBanned = async () => {
@@ -85,6 +85,8 @@ function register({ registerHook, peertubeHelpers }) {
       // Create modal
       openBanModal();
     });
+
+    console.log(banBtn);
 
     buttonsContainer.appendChild(banBtn);
   };
@@ -210,11 +212,13 @@ function register({ registerHook, peertubeHelpers }) {
   registerHook({
     target: 'action:auth-user.information-loaded',
     handler: ({ user }) => {
-      if (user.role == 0 || user.role == 1) {
+      console.log("user", user);
+      if (user.role.id == 0 || user.role.id == 1) {
         isModerator = true;
       } else {
         isModerator = false;
       }
+      console.log(isModerator)
     }
   })
 }
