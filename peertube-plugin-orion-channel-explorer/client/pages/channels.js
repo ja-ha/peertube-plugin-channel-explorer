@@ -16,13 +16,25 @@ async function showPage({ rootEl, peertubeHelpers }) {
             </a>
 
             <div class="mt-4">
-                <div class="row" id="channels-list">
+                <div class="row" id="channels-list"></div>
+
+                // Add button to load more channels
+                <div class="text-center">
+                    <button class="btn btn-primary" id="load-more-channels">
+                        ${await peertubeHelpers.translate("Load more channels")}
+                    </button>
+                </div>
             </div>
         </div>
     `;
 
     // Init channels list
-    loadNextChannels(peertubeHelpers);
+    loadNextChannels(peertubeHelpers).then(() => {
+        // Add event listener to load more channels button
+        document.getElementById("load-more-channels").addEventListener("click", () => {
+            loadNextChannels(peertubeHelpers);
+        });
+    });
 
 
     // When page is scrolled to botoom, refresh the channels list
@@ -50,19 +62,19 @@ async function loadNextChannels(peertubeHelpers) {
         if(!data.status || data.status !== "success") {
             peertubeHelpers.notifier.error(data.message || "Unknown error while loading channels");
             console.log(data);
-            return;
+            throw new Error("Unknown error while loading channels");
         }
 
         const channels = data.data.channels;
         if (channels.length === 0) {
             peertubeHelpers.notifier.info(await peertubeHelpers.translate("No more channels to load"));
-            return;
+            throw new Error("No more channels to load");
         }
         
         latest += channels.length;
         for(let i = 0; i < channels.length; i++) {
             const channel = channels[i];
-            if(!channel.username) return;
+            if(!channel.username) throw new Error("Channel username is missing");
 
             const node = document.createElement("div");
             
@@ -101,7 +113,7 @@ async function loadNextChannels(peertubeHelpers) {
         }
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 
     isWorking = false;
