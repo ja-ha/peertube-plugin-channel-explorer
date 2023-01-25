@@ -18,7 +18,8 @@ async function register({
     try {
       // Get current user
       const user = await peertubeHelpers.user.getAuthUser(res);
-      if (!user || (user.role.id != 0 && user.role.id != 1)) {
+      console.log('USER', user);
+      if (!user || (user.role != 0 && user.role != 1)) {
         res.json({ status: "failure", message: "You are not allowed to do that." });
         return;
       }
