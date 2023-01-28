@@ -18,7 +18,6 @@ async function showPage({ rootEl, peertubeHelpers }) {
             <div class="mt-4">
                 <div class="row" id="channels-list"></div>
 
-                // Add button to load more channels
                 <div class="text-center">
                     <button class="btn btn-primary" id="load-more-channels">
                         ${await peertubeHelpers.translate("Load more channels")}
