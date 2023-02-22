@@ -23,7 +23,7 @@ async function register({
       }
 
       const channels = await peertubeHelpers.database.query(
-        'SELECT "id", "actorId", "name", "description" FROM "videoChannel" ORDER BY "updatedAt" DESC LIMIT $limit OFFSET $skip',
+        'SELECT "id", "actorId", "name", "description" FROM "videoChannel" ORDER BY "updatedAt" ASC LIMIT $limit OFFSET $skip',
         {
           type: "SELECT",
           bind: { skip: parseInt(skip), limit: parseInt(limit) }
@@ -31,33 +31,44 @@ async function register({
       )
 
       if(channels && channels.length > 0) {
-        for(let i = 0; i < channels.length; i++) {
-          const channel = channels[i];
-          const actor = await peertubeHelpers.database.query(
-            'SELECT "preferredUsername", "url" FROM "actor" WHERE "id" = $actorId',
-            {
-              type: "SELECT",
-              bind: { actorId: channel.actorId }
-            }
-          );
-  
-          if(actor && actor.length > 0) {
-            channel.username = actor[0].preferredUsername;
-            channel.url = channel.username + "@" + actor[0].url.split("/")[2];
-          }
-          
+        // create new array for channels containing videos
+        const videoChannels = [];
+
+        while(channels.length) {
+          const channel = channels.pop();
+
           const videos = await peertubeHelpers.database.query(
-            'SELECT "uuid", "name" FROM "video" WHERE "channelId" = $channelId AND "privacy" = $privacy AND"state" = $state ORDER BY "publishedAt" DESC LIMIT 5',
+            'SELECT "uuid", "name" FROM "video" WHERE "channelId" = $channelId AND "privacy" = $privacy AND "state" = $state ORDER BY "publishedAt" DESC LIMIT 5',
             {
               type: "SELECT",
               bind: { channelId: channel.id, privacy: "1", state: "1" }
             }
           );
 
+          // Only process further if channel contains videos
           if(videos && videos.length > 0) {
             channel.latestVideos = videos;
+
+            const actor = await peertubeHelpers.database.query(
+              'SELECT "preferredUsername", "url" FROM "actor" WHERE "id" = $actorId',
+              {
+                type: "SELECT",
+                bind: { actorId: channel.actorId }
+              }
+            );
+    
+            if(actor && actor.length > 0) {
+              channel.username = actor[0].preferredUsername;
+              channel.url = channel.username + "@" + actor[0].url.split("/")[2];
+            }
+
+            // Add channel to return array
+            videoChannels.push(channel)
           }
         }
+
+        // only return channels containing videos
+        channels = videoChannels
       }
 
       res.json({

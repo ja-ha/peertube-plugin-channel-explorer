@@ -1,9 +1,9 @@
 {
-  "name": "peertube-plugin-orion-channel-explorer",
-  "description": "Allow users to explore channels in the Discover page",
-  "version": "1.3.1",
-  "author": "Nalem",
-  "bugs": "https://git.orion-serv.fr/Orion/Peertube-plugins",
+  "name": "peertube-plugin-channel-explorer",
+  "description": "Allow users to explore channels with videos in the Discover page",
+  "version": "0.1",
+  "author": "ja-ha",
+  "bugs": "https://github.com/ja-ha/peertube-plugin-channel-explorer/issues",
   "clientScripts": [
     {
       "script": "dist/common-client-plugin.js",
@@ -18,7 +18,7 @@
   "engine": {
     "peertube": ">=4.2.0"
   },
-  "homepage": "https://git.orion-serv.fr/Orion/Peertube-plugins",
+  "homepage": "https://github.com/ja-ha/peertube-plugin-channel-explorer",
   "keywords": [
     "peertube",
     "plugin",
@@ -28,14 +28,14 @@
   "library": "./main.js",
   "scripts": {
     "prepare": "npm run build",
-    "build": "node ./scripts/build.js",
-    "pl:install": "cd ../../PeerTube && npm run plugin:uninstall -- --npm-name peertube-plugin-orion-channel-explorer && npm run plugin:install -- --plugin-path /Users/thommy/Websites/peertube-dev/plugins/peertube-plugin-orion-channel-explorer"
+    "build": "node ./scripts/build.js"
   },
   "staticDirs": {
     "images": "public/images"
   },
   "translations": {
-    "fr-FR": "./languages/fr.json"
+    "fr-FR": "./languages/fr.json",
+    "de-DE": "./languages/de.json"
   },
   "devDependencies": {
     "esbuild": "^0.14.36"
