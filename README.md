@@ -10,7 +10,7 @@
 
 This plugin adds a new page to explore PeerTube channels.
 
-This is a fork of [orion-channel-explorer](https://git.orion-serv.fr/Orion/Peertube-plugins/src/branch/master/peertube-plugin-orion-channel-explorer) which only shows channels with videos.
+This is a fork of [orion-channel-explorer](https://git.orion-serv.fr/Orion/Peertube-plugins/src/branch/master/peertube-plugin-orion-channel-explorer) which only shows channels containing videos.
 
 ## Getting Started <a name = "getting_started"></a>
 
