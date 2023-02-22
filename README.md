@@ -1,4 +1,4 @@
-# PeerTube plugin Admin Statistics
+# PeerTube plugin Channel explorer
 
 ## Table of Contents
 
@@ -8,7 +8,9 @@
 
 ## About <a name = "about"></a>
 
-This plugin allow you to see some stats about your instance in the Admin dashboard
+This plugin adds a new page to explore PeerTube channels.
+
+This is a fork of [orion-channel-explorer](https://git.orion-serv.fr/Orion/Peertube-plugins/src/branch/master/peertube-plugin-orion-channel-explorer) which only shows channels with videos.
 
 ## Getting Started <a name = "getting_started"></a>
 
@@ -22,10 +24,10 @@ Check [Prerequisites](#Prerequisites) to install this plugin
 
 - Go to your instance Admin
 - Navigate to the "Plugins" page
-- Search for "orion-admin-stats"
+- Search for "channel-explorer"
 - Click Install near the plugin name
 
 ## Usage <a name = "usage"></a>
 
-- Navigate to the Admin dashboard
-- Navigate to the new navigation link "Statistics"
+- Navigate to the Discover page
+- Click on Explore channels button at the top
